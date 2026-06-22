@@ -11,19 +11,19 @@ import { analyzeServingSizeReality } from "./serving-size-engine";
 
 const riskPenalty: Record<RiskLevel, number> = {
   Low: 0,
-  Moderate: 8,
-  High: 18,
-  Critical: 28,
+  Moderate: 5,
+  High: 12,
+  Critical: 20,
 };
 
 const supportPenalty = {
-  Weak: 10,
-  Moderate: 4,
+  Weak: 6,
+  Moderate: 3,
   Good: 0,
 };
 
 const clampScore = (score: number): number => {
-  return Math.max(0, Math.min(100, Math.round(score)));
+  return Math.max(5, Math.min(100, Math.round(score)));
 };
 
 const getGrade = (score: number): FoodTruthGrade => {
@@ -97,8 +97,8 @@ const buildSummary = (
   }
 
   return `${input.productName} shows ${concerns.join(
-  ", "
-)}. This report is for label literacy only and suggests that the label may need closer reading before purchase.`;
+    ", "
+  )}. This report is for label literacy only and suggests that the label may need closer reading before purchase.`;
 };
 
 const buildBetterChoiceChecklist = (
@@ -111,11 +111,15 @@ const buildBetterChoiceChecklist = (
   }
 
   if (report.nutritionLoad.sodiumLoad !== "Low") {
-    checklist.push("Check sodium load against similar products in the same category.");
+    checklist.push(
+      "Check sodium load against similar products in the same category."
+    );
   }
 
   if (report.nutritionLoad.fiberSupport === "Weak") {
-    checklist.push("Look for stronger fiber support if the product is positioned as filling or wholesome.");
+    checklist.push(
+      "Look for stronger fiber support if the product is positioned as filling or wholesome."
+    );
   }
 
   if (report.nutritionLoad.proteinSupport === "Weak") {
@@ -127,15 +131,21 @@ const buildBetterChoiceChecklist = (
   }
 
   if (report.ingredientClarity.additiveIndicatorsDetected.length > 0) {
-    checklist.push("Review additive indicators and decide whether the label is transparent enough for you.");
+    checklist.push(
+      "Review additive indicators and decide whether the label is transparent enough for you."
+    );
   }
 
   if (report.claimRisk.flaggedClaims.length > 0) {
-    checklist.push("Read front-label claims together with the nutrition panel and ingredient list.");
+    checklist.push(
+      "Read front-label claims together with the nutrition panel and ingredient list."
+    );
   }
 
   if (report.servingSizeReality.risk !== "Low") {
-    checklist.push("Check how many servings are in the full pack before judging the nutrition values.");
+    checklist.push(
+      "Check how many servings are in the full pack before judging the nutrition values."
+    );
   }
 
   if (checklist.length === 0) {
