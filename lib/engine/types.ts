@@ -73,3 +73,18 @@ export type FoodTruthReport = {
   summary: string;
   betterChoiceChecklist: string[];
 };
+
+export type FoodTruthValidationError = {
+  field: string;
+  message: string;
+};
+
+export type ValidatedFoodTruthResult =
+  | {
+      success: true;
+      report: FoodTruthReport;
+    }
+  | {
+      success: false;
+      errors: FoodTruthValidationError[];
+    };
