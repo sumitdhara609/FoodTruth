@@ -1,7 +1,6 @@
-import { generateFoodTruthReport } from "@/lib/engine/foodtruth-engine";
-import type { FoodLabelInput } from "@/lib/engine/types";
+import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
 
-const demoProduct: FoodLabelInput = {
+const demoProduct = {
   productName: "Choco Energy Bar",
   brandName: "Demo Foods",
   category: "Snack",
@@ -19,10 +18,21 @@ const demoProduct: FoodLabelInput = {
   claims: ["healthy", "energy", "high fiber"],
 };
 
-const report = generateFoodTruthReport(demoProduct);
+const result = generateValidatedFoodTruthReport(demoProduct);
 
 console.log("\nFoodTruth Engine Demo");
 console.log("=====================\n");
+
+if (!result.success) {
+  console.log("Validation failed:");
+  result.errors.forEach((error) => {
+    console.log(`- ${error.field}: ${error.message}`);
+  });
+
+  process.exit(1);
+}
+
+const { report } = result;
 
 console.log(`Product: ${report.productName}`);
 console.log(`Score: ${report.score}/100`);
@@ -52,7 +62,9 @@ console.log(
     report.ingredientClarity.additiveIndicatorsDetected.join(", ") || "None"
   }`
 );
-console.log(`Ingredient Complexity: ${report.ingredientClarity.ingredientComplexity}`);
+console.log(
+  `Ingredient Complexity: ${report.ingredientClarity.ingredientComplexity}`
+);
 
 console.log("\nMarketing Claim Risk");
 console.log("--------------------");
