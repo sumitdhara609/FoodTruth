@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
-    "demo:engine": "tsx scripts/demo-foodtruth-engine.ts"
+    "demo:engine": "tsx scripts/demo-foodtruth-engine.ts",
+    "demo:validation": "tsx scripts/demo-validation-errors.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
