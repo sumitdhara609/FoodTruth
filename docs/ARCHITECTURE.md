@@ -20,7 +20,18 @@ FoodTruth is built as a modular label-intelligence platform.
 - Serving Size Reality Engine
 - FoodTruth Score Engine
 
-### 3. Data Layer
+### 3. Validation Layer
+
+- Zod input schema
+- Field-level validation errors
+- Safe report generation wrapper
+- Validation demo script
+
+The validation layer protects the FoodTruth Engine from malformed input before analysis begins.
+
+The UI should never call the raw report engine directly. User-submitted data should pass through the validated wrapper first.
+
+### 4. Data Layer
 
 - Supabase PostgreSQL
 - Saved products
@@ -28,7 +39,7 @@ FoodTruth is built as a modular label-intelligence platform.
 - Claim flags
 - Ingredient flags
 
-### 4. Quality Layer
+### 5. Quality Layer
 
 - TypeScript
 - Validation
