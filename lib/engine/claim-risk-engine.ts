@@ -10,6 +10,7 @@ const getHighestRisk = (risks: RiskLevel[]): RiskLevel => {
   if (risks.includes("Critical")) return "Critical";
   if (risks.includes("High")) return "High";
   if (risks.includes("Moderate")) return "Moderate";
+
   return "Low";
 };
 
