@@ -1,8 +1,10 @@
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+
 export default function Home() {
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col justify-between rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/75 p-6 shadow-[var(--shadow-soft)] backdrop-blur-xl sm:p-10 lg:p-14">
-        <nav className="flex items-center justify-between">
+        <nav className="flex items-center justify-between gap-6">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-[var(--primary)]/70">
               FoodTruth
@@ -12,8 +14,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="hidden rounded-full border border-[var(--border)] px-4 py-2 text-xs text-[var(--foreground)]/65 sm:block">
-            Engine v0.1
+          <div className="flex items-center gap-3">
+            <div className="hidden rounded-full border border-[var(--border)] px-4 py-2 text-xs text-[var(--foreground)]/65 sm:block">
+              Engine v0.1
+            </div>
+            <ThemeToggle />
           </div>
         </nav>
 
