@@ -1,95 +1,99 @@
+import { ScanPreview } from "@/components/landing/scan-preview";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+
+const inputModes = [
+  {
+    title: "Manual",
+    description: "Enter nutrition values, ingredients, and claims directly.",
+  },
+  {
+    title: "Upload",
+    description: "Upload a label image for structured label understanding.",
+  },
+  {
+    title: "Scan",
+    description: "Use a mobile-first camera flow for instant label capture.",
+  },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
-      <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col justify-between rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/75 p-6 shadow-[var(--shadow-soft)] backdrop-blur-xl sm:p-10 lg:p-14">
-        <nav className="flex items-center justify-between gap-6">
+    <main className="min-h-screen overflow-hidden px-5 py-5 sm:px-8 sm:py-8 lg:px-14">
+      <section className="relative mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-7xl flex-col overflow-hidden rounded-[2.25rem] border border-[var(--border)] bg-[var(--surface)]/72 p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-8 lg:p-10">
+        <div className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-[var(--accent)]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-[var(--primary)]/10 blur-3xl" />
+
+        <nav className="relative z-10 flex items-center justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-[var(--primary)]/70">
+            <p className="text-sm uppercase tracking-[0.38em] text-[var(--primary)]/75">
               FoodTruth
             </p>
-            <p className="mt-1 text-xs text-[var(--foreground)]/55">
-              Label Intelligence Platform
+            <p className="mt-1 text-xs text-[var(--foreground)]/50">
+              Packaged Food Label Intelligence
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden rounded-full border border-[var(--border)] px-4 py-2 text-xs text-[var(--foreground)]/65 sm:block">
+            <div className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-4 py-2 text-xs text-[var(--foreground)]/60 sm:block">
               Engine v0.1
             </div>
             <ThemeToggle />
           </div>
         </nav>
 
-        <div className="grid gap-12 py-20 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+        <div className="relative z-10 grid flex-1 gap-12 py-12 lg:grid-cols-[0.98fr_1.02fr] lg:items-center lg:py-16">
           <div>
-            <div className="mb-6 inline-flex rounded-full border border-[var(--border)] bg-[var(--accent-muted)] px-4 py-2 text-xs font-medium text-[var(--primary)]">
-              The front label sells. The back label reveals.
+            <div className="inline-flex rounded-full border border-[var(--border)] bg-[var(--accent-muted)] px-4 py-2 text-xs font-medium text-[var(--primary)]">
+              The front label sells. FoodTruth reads what matters.
             </div>
 
-            <h1 className="max-w-4xl text-5xl font-semibold tracking-[-0.06em] text-[var(--foreground)] sm:text-6xl lg:text-7xl">
-              Understand what the label is really saying.
+            <h1 className="mt-7 max-w-4xl text-5xl font-semibold tracking-[-0.075em] text-[var(--foreground)] sm:text-6xl lg:text-7xl">
+              Upload. Scan. Understand.
             </h1>
 
             <p className="mt-7 max-w-2xl text-base leading-8 text-[var(--foreground)]/68 sm:text-lg">
-              FoodTruth is being built to decode packaged food labels through
+              FoodTruth is being built as a premium label-intelligence platform
+              that helps people understand packaged food labels through
               nutrition load, ingredient clarity, serving-size reality, and
               marketing claim awareness.
             </p>
 
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              {inputModes.map((mode) => (
+                <div
+                  key={mode.title}
+                  className="rounded-3xl border border-[var(--border)] bg-[var(--background)]/60 p-4 transition hover:-translate-y-0.5 hover:bg-[var(--surface-muted)]"
+                >
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {mode.title}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-[var(--foreground)]/55">
+                    {mode.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <button className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] transition hover:opacity-90">
-                Analyze a Label
+              <button className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90">
+                Start Label Analysis
               </button>
-              <button className="rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/75 transition hover:bg-[var(--surface-muted)]">
-                View Engine Preview
+              <button className="rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-6 py-3 text-sm font-semibold text-[var(--foreground)]/75 transition hover:bg-[var(--surface-muted)]">
+                Explore Engine Logic
               </button>
             </div>
+
+            <p className="mt-6 max-w-xl text-xs leading-6 text-[var(--foreground)]/45">
+              Educational label intelligence only. FoodTruth does not provide
+              medical advice, diet instructions, or fear-based food judgments.
+            </p>
           </div>
 
-          <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--background)]/65 p-5 shadow-[var(--shadow-soft)]">
-            <div className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">FoodTruth Score</p>
-                <span className="rounded-full bg-[var(--accent-muted)] px-3 py-1 text-xs text-[var(--primary)]">
-                  Demo
-                </span>
-              </div>
-
-              <div className="mt-8">
-                <p className="text-6xl font-semibold tracking-[-0.08em]">
-                  28
-                  <span className="text-2xl text-[var(--foreground)]/45">
-                    /100
-                  </span>
-                </p>
-                <p className="mt-3 text-sm text-[var(--danger)]">
-                  Very High Concern
-                </p>
-              </div>
-
-              <div className="mt-8 space-y-3">
-                {[
-                  "High sugar density",
-                  "Marketing claim risk",
-                  "Serving-size framing",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center justify-between rounded-2xl border border-[var(--border)] px-4 py-3 text-sm"
-                  >
-                    <span className="text-[var(--foreground)]/70">{item}</span>
-                    <span className="h-2 w-2 rounded-full bg-[var(--warning)]" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ScanPreview />
         </div>
 
-        <footer className="flex flex-col gap-3 border-t border-[var(--border)] pt-6 text-xs text-[var(--foreground)]/50 sm:flex-row sm:items-center sm:justify-between">
-          <p>Educational label intelligence. Not medical advice.</p>
+        <footer className="relative z-10 flex flex-col gap-3 border-t border-[var(--border)] pt-5 text-xs text-[var(--foreground)]/48 sm:flex-row sm:items-center sm:justify-between">
+          <p>Manual entry now. Upload and scan flows planned carefully.</p>
           <p>Crafted with clarity by Sumit Dhara</p>
         </footer>
       </section>
