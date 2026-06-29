@@ -45,7 +45,7 @@ export default function Home() {
 
           <div className="flex items-center gap-3">
             <div className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-4 py-2 text-xs text-[var(--foreground)]/60 sm:block">
-              Mobile-first · Free · Premium
+              Label Intelligence
             </div>
             <ThemeToggle />
           </div>
