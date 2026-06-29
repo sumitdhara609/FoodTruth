@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -111,6 +111,26 @@ export function ManualAnalyzerForm() {
     useState<ManualAnalyzerState>(initialFormState);
   const [result, setResult] = useState<ValidatedFoodTruthResult | null>(null);
 
+  const fieldErrors = useMemo(() => {
+    if (!result || result.success) {
+      return new Map<string, string>();
+    }
+
+    return new Map(result.errors.map((error) => [error.field, error.message]));
+  }, [result]);
+
+  const getFieldError = (field: keyof ManualAnalyzerState) => {
+    return fieldErrors.get(field);
+  };
+
+  const getFieldClassName = (field: keyof ManualAnalyzerState) => {
+    const hasError = fieldErrors.has(field);
+
+    return hasError
+      ? "mt-2 w-full rounded-2xl border border-[var(--danger)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--danger)]"
+      : "mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40";
+  };
+
   const updateField = (key: keyof ManualAnalyzerState, value: string) => {
     setFormState((currentState) => ({
       ...currentState,
@@ -163,8 +183,13 @@ export function ManualAnalyzerForm() {
                 updateField("productName", event.target.value)
               }
               placeholder="Example: Multigrain Breakfast Bar"
-              className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+              className={getFieldClassName("productName")}
             />
+            {getFieldError("productName") && (
+              <p className="mt-2 text-xs text-[var(--danger)]">
+                {getFieldError("productName")}
+              </p>
+            )}
           </label>
 
           <label className="block">
@@ -175,7 +200,7 @@ export function ManualAnalyzerForm() {
               value={formState.category}
               onChange={(event) => updateField("category", event.target.value)}
               placeholder="Snack"
-              className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+              className={getFieldClassName("category")}
             />
           </label>
 
@@ -187,7 +212,7 @@ export function ManualAnalyzerForm() {
               value={formState.brandName}
               onChange={(event) => updateField("brandName", event.target.value)}
               placeholder="Optional"
-              className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+              className={getFieldClassName("brandName")}
             />
           </label>
         </div>
@@ -203,8 +228,13 @@ export function ManualAnalyzerForm() {
                 onChange={(event) => updateField(field.key, event.target.value)}
                 placeholder={field.placeholder}
                 inputMode="decimal"
-                className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+                className={getFieldClassName(field.key)}
               />
+              {getFieldError(field.key) && (
+                <p className="mt-2 text-xs text-[var(--danger)]">
+                  {getFieldError(field.key)}
+                </p>
+              )}
             </label>
           ))}
         </div>
@@ -218,8 +248,13 @@ export function ManualAnalyzerForm() {
             onChange={(event) => updateField("ingredients", event.target.value)}
             placeholder="Paste the ingredient list exactly as written on the label."
             rows={5}
-            className="mt-2 w-full resize-none rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+            className={`${getFieldClassName("ingredients")} resize-none leading-6`}
           />
+          {getFieldError("ingredients") && (
+            <p className="mt-2 text-xs text-[var(--danger)]">
+              {getFieldError("ingredients")}
+            </p>
+          )}
         </label>
 
         <label className="mt-6 block">
@@ -230,35 +265,35 @@ export function ManualAnalyzerForm() {
             value={formState.claims}
             onChange={(event) => updateField("claims", event.target.value)}
             placeholder="Example: high fiber, natural, no added sugar"
-            className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40"
+            className={getFieldClassName("claims")}
           />
         </label>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-  <button
-    type="button"
-    onClick={handleGenerateReport}
-    className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
-  >
-    Generate preview report
-  </button>
+          <button
+            type="button"
+            onClick={handleGenerateReport}
+            className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
+          >
+            Generate preview report
+          </button>
 
-  <button
-    type="button"
-    onClick={handleUseSample}
-    className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/70 transition hover:bg-[var(--surface-muted)]"
-  >
-    Use sample label
-  </button>
+          <button
+            type="button"
+            onClick={handleUseSample}
+            className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/70 transition hover:bg-[var(--surface-muted)]"
+          >
+            Use sample label
+          </button>
 
-  <button
-    type="button"
-    onClick={handleClearForm}
-    className="rounded-full px-6 py-3 text-sm font-semibold text-[var(--foreground)]/48 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]/70"
-  >
-    Clear
-  </button>
-</div>
+          <button
+            type="button"
+            onClick={handleClearForm}
+            className="rounded-full px-6 py-3 text-sm font-semibold text-[var(--foreground)]/48 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]/70"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       <FoodTruthReportPanel result={result} />
