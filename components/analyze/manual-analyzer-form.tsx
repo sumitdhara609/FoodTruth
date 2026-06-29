@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -24,7 +24,7 @@ type NumericField = {
   placeholder: string;
 };
 
-const numericFields: NumericField[] = [
+const servingFields: NumericField[] = [
   {
     key: "servingSizeGrams",
     label: "Serving size",
@@ -35,6 +35,9 @@ const numericFields: NumericField[] = [
     label: "Pack size",
     placeholder: "200",
   },
+];
+
+const nutritionFields: NumericField[] = [
   {
     key: "calories",
     label: "Calories",
@@ -156,6 +159,28 @@ export function ManualAnalyzerForm() {
     setResult(null);
   };
 
+  const renderNumericField = (field: NumericField) => {
+    return (
+      <label key={field.key} className="block">
+        <span className="text-xs font-medium text-[var(--foreground)]/58">
+          {field.label}
+        </span>
+        <input
+          value={formState[field.key]}
+          onChange={(event) => updateField(field.key, event.target.value)}
+          placeholder={field.placeholder}
+          inputMode="decimal"
+          className={getFieldClassName(field.key)}
+        />
+        {getFieldError(field.key) && (
+          <p className="mt-2 text-xs text-[var(--danger)]">
+            {getFieldError(field.key)}
+          </p>
+        )}
+      </label>
+    );
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
       <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5 shadow-[var(--shadow-soft)]">
@@ -172,102 +197,126 @@ export function ManualAnalyzerForm() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <label className="block sm:col-span-2">
-            <span className="text-xs font-medium text-[var(--foreground)]/58">
-              Product name
-            </span>
-            <input
-              value={formState.productName}
-              onChange={(event) =>
-                updateField("productName", event.target.value)
-              }
-              placeholder="Example: Multigrain Breakfast Bar"
-              className={getFieldClassName("productName")}
-            />
-            {getFieldError("productName") && (
-              <p className="mt-2 text-xs text-[var(--danger)]">
-                {getFieldError("productName")}
-              </p>
-            )}
-          </label>
+        <div className="mt-8 space-y-5">
+          <FormSection
+            eyebrow="Identity"
+            title="Product details"
+            description="Start with the basic label identity before reading the nutrition panel."
+          >
+            <div className="grid gap-4 sm:grid-cols-3">
+              <label className="block sm:col-span-2">
+                <span className="text-xs font-medium text-[var(--foreground)]/58">
+                  Product name
+                </span>
+                <input
+                  value={formState.productName}
+                  onChange={(event) =>
+                    updateField("productName", event.target.value)
+                  }
+                  placeholder="Example: Multigrain Breakfast Bar"
+                  className={getFieldClassName("productName")}
+                />
+                {getFieldError("productName") && (
+                  <p className="mt-2 text-xs text-[var(--danger)]">
+                    {getFieldError("productName")}
+                  </p>
+                )}
+              </label>
 
-          <label className="block">
-            <span className="text-xs font-medium text-[var(--foreground)]/58">
-              Category
-            </span>
-            <input
-              value={formState.category}
-              onChange={(event) => updateField("category", event.target.value)}
-              placeholder="Snack"
-              className={getFieldClassName("category")}
-            />
-          </label>
+              <label className="block">
+                <span className="text-xs font-medium text-[var(--foreground)]/58">
+                  Category
+                </span>
+                <input
+                  value={formState.category}
+                  onChange={(event) =>
+                    updateField("category", event.target.value)
+                  }
+                  placeholder="Snack"
+                  className={getFieldClassName("category")}
+                />
+              </label>
 
-          <label className="block sm:col-span-3">
-            <span className="text-xs font-medium text-[var(--foreground)]/58">
-              Brand name
-            </span>
-            <input
-              value={formState.brandName}
-              onChange={(event) => updateField("brandName", event.target.value)}
-              placeholder="Optional"
-              className={getFieldClassName("brandName")}
-            />
-          </label>
-        </div>
+              <label className="block sm:col-span-3">
+                <span className="text-xs font-medium text-[var(--foreground)]/58">
+                  Brand name
+                </span>
+                <input
+                  value={formState.brandName}
+                  onChange={(event) =>
+                    updateField("brandName", event.target.value)
+                  }
+                  placeholder="Optional"
+                  className={getFieldClassName("brandName")}
+                />
+              </label>
+            </div>
+          </FormSection>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {numericFields.map((field) => (
-            <label key={field.key} className="block">
+          <FormSection
+            eyebrow="Serving"
+            title="Serving context"
+            description="Serving and pack size help FoodTruth understand how label values may scale."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {servingFields.map(renderNumericField)}
+            </div>
+          </FormSection>
+
+          <FormSection
+            eyebrow="Nutrition"
+            title="Nutrition panel"
+            description="Enter the visible nutrition values from the label as accurately as possible."
+          >
+            <div className="grid gap-4 sm:grid-cols-3">
+              {nutritionFields.map(renderNumericField)}
+            </div>
+          </FormSection>
+
+          <FormSection
+            eyebrow="Ingredients"
+            title="Ingredient list"
+            description="Paste the ingredient list exactly as written so FoodTruth can detect clarity signals."
+          >
+            <label className="block">
               <span className="text-xs font-medium text-[var(--foreground)]/58">
-                {field.label}
+                Ingredients
               </span>
-              <input
-                value={formState[field.key]}
-                onChange={(event) => updateField(field.key, event.target.value)}
-                placeholder={field.placeholder}
-                inputMode="decimal"
-                className={getFieldClassName(field.key)}
+              <textarea
+                value={formState.ingredients}
+                onChange={(event) =>
+                  updateField("ingredients", event.target.value)
+                }
+                placeholder="Paste the ingredient list exactly as written on the label."
+                rows={5}
+                className={`${getFieldClassName("ingredients")} resize-none leading-6`}
               />
-              {getFieldError(field.key) && (
+              {getFieldError("ingredients") && (
                 <p className="mt-2 text-xs text-[var(--danger)]">
-                  {getFieldError(field.key)}
+                  {getFieldError("ingredients")}
                 </p>
               )}
             </label>
-          ))}
+          </FormSection>
+
+          <FormSection
+            eyebrow="Claims"
+            title="Front-label claims"
+            description="Add visible claims such as high fiber, natural, no added sugar, or energy."
+          >
+            <label className="block">
+              <span className="text-xs font-medium text-[var(--foreground)]/58">
+                Claims
+              </span>
+              <input
+                value={formState.claims}
+                onChange={(event) => updateField("claims", event.target.value)}
+                placeholder="Example: high fiber, natural, no added sugar"
+                className={getFieldClassName("claims")}
+              />
+            </label>
+          </FormSection>
         </div>
-
-        <label className="mt-6 block">
-          <span className="text-xs font-medium text-[var(--foreground)]/58">
-            Ingredients
-          </span>
-          <textarea
-            value={formState.ingredients}
-            onChange={(event) => updateField("ingredients", event.target.value)}
-            placeholder="Paste the ingredient list exactly as written on the label."
-            rows={5}
-            className={`${getFieldClassName("ingredients")} resize-none leading-6`}
-          />
-          {getFieldError("ingredients") && (
-            <p className="mt-2 text-xs text-[var(--danger)]">
-              {getFieldError("ingredients")}
-            </p>
-          )}
-        </label>
-
-        <label className="mt-6 block">
-          <span className="text-xs font-medium text-[var(--foreground)]/58">
-            Front-label claims
-          </span>
-          <input
-            value={formState.claims}
-            onChange={(event) => updateField("claims", event.target.value)}
-            placeholder="Example: high fiber, natural, no added sugar"
-            className={getFieldClassName("claims")}
-          />
-        </label>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
@@ -298,5 +347,37 @@ export function ManualAnalyzerForm() {
 
       <FoodTruthReportPanel result={result} />
     </div>
+  );
+}
+
+type FormSectionProps = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: ReactNode;
+};
+
+function FormSection({
+  eyebrow,
+  title,
+  description,
+  children,
+}: FormSectionProps) {
+  return (
+    <section className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--background)]/45 p-4">
+      <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--primary)]/65">
+        {eyebrow}
+      </p>
+
+      <h3 className="mt-2 text-lg font-semibold tracking-[-0.04em] text-[var(--foreground)]">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-xs leading-5 text-[var(--foreground)]/50">
+        {description}
+      </p>
+
+      <div className="mt-5">{children}</div>
+    </section>
   );
 }
