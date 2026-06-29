@@ -89,6 +89,23 @@ const initialFormState: ManualAnalyzerState = {
   claims: "",
 };
 
+const sampleFormState: ManualAnalyzerState = {
+  productName: "Multigrain Breakfast Bar",
+  brandName: "Demo Foods",
+  category: "Snack",
+  servingSizeGrams: "40",
+  packSizeGrams: "200",
+  calories: "180",
+  sugarGrams: "12",
+  sodiumMg: "110",
+  totalFatGrams: "6",
+  saturatedFatGrams: "2",
+  proteinGrams: "4",
+  fiberGrams: "2",
+  ingredients: "whole grains, dates, sugar, glucose syrup, cocoa, stabilizer",
+  claims: "high fiber, natural",
+};
+
 export function ManualAnalyzerForm() {
   const [formState, setFormState] =
     useState<ManualAnalyzerState>(initialFormState);
@@ -107,6 +124,16 @@ export function ManualAnalyzerForm() {
     );
 
     setResult(nextResult);
+  };
+
+  const handleUseSample = () => {
+    setFormState(sampleFormState);
+    setResult(null);
+  };
+
+  const handleClearForm = () => {
+    setFormState(initialFormState);
+    setResult(null);
   };
 
   return (
@@ -207,13 +234,31 @@ export function ManualAnalyzerForm() {
           />
         </label>
 
-        <button
-          type="button"
-          onClick={handleGenerateReport}
-          className="mt-8 rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
-        >
-          Generate preview report
-        </button>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+  <button
+    type="button"
+    onClick={handleGenerateReport}
+    className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
+  >
+    Generate preview report
+  </button>
+
+  <button
+    type="button"
+    onClick={handleUseSample}
+    className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/70 transition hover:bg-[var(--surface-muted)]"
+  >
+    Use sample label
+  </button>
+
+  <button
+    type="button"
+    onClick={handleClearForm}
+    className="rounded-full px-6 py-3 text-sm font-semibold text-[var(--foreground)]/48 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]/70"
+  >
+    Clear
+  </button>
+</div>
       </div>
 
       <FoodTruthReportPanel result={result} />
