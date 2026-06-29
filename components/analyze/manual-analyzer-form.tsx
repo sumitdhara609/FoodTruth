@@ -1,8 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  buildFoodLabelInputFromManualState,
+  type ManualAnalyzerState,
+} from "@/lib/analyze/manual-input-adapter";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
-import type { FoodTruthReport, ValidatedFoodTruthResult } from "@/lib/engine/types";
+import type {
+  FoodTruthReport,
+  ValidatedFoodTruthResult,
+} from "@/lib/engine/types";
 
 type NumericField = {
   key:
@@ -67,24 +74,7 @@ const numericFields: NumericField[] = [
   },
 ];
 
-type ManualFormState = {
-  productName: string;
-  brandName: string;
-  category: string;
-  servingSizeGrams: string;
-  packSizeGrams: string;
-  calories: string;
-  sugarGrams: string;
-  sodiumMg: string;
-  totalFatGrams: string;
-  saturatedFatGrams: string;
-  proteinGrams: string;
-  fiberGrams: string;
-  ingredients: string;
-  claims: string;
-};
-
-const initialFormState: ManualFormState = {
+const initialFormState: ManualAnalyzerState = {
   productName: "",
   brandName: "",
   category: "",
@@ -101,21 +91,9 @@ const initialFormState: ManualFormState = {
   claims: "",
 };
 
-const toNumber = (value: string) => {
-  const parsedValue = Number(value);
-
-  return Number.isFinite(parsedValue) ? parsedValue : Number.NaN;
-};
-
-const splitClaims = (claims: string) => {
-  return claims
-    .split(",")
-    .map((claim) => claim.trim())
-    .filter(Boolean);
-};
-
 export function ManualAnalyzerForm() {
-  const [formState, setFormState] = useState<ManualFormState>(initialFormState);
+  const [formState, setFormState] =
+    useState<ManualAnalyzerState>(initialFormState);
   const [result, setResult] = useState<ValidatedFoodTruthResult | null>(null);
 
   const report = useMemo<FoodTruthReport | null>(() => {
@@ -126,7 +104,7 @@ export function ManualAnalyzerForm() {
     return result.report;
   }, [result]);
 
-  const updateField = (key: keyof ManualFormState, value: string) => {
+  const updateField = (key: keyof ManualAnalyzerState, value: string) => {
     setFormState((currentState) => ({
       ...currentState,
       [key]: value,
@@ -134,22 +112,9 @@ export function ManualAnalyzerForm() {
   };
 
   const handleGenerateReport = () => {
-    const nextResult = generateValidatedFoodTruthReport({
-      productName: formState.productName,
-      brandName: formState.brandName || undefined,
-      category: formState.category || undefined,
-      servingSizeGrams: toNumber(formState.servingSizeGrams),
-      packSizeGrams: toNumber(formState.packSizeGrams),
-      calories: toNumber(formState.calories),
-      sugarGrams: toNumber(formState.sugarGrams),
-      sodiumMg: toNumber(formState.sodiumMg),
-      totalFatGrams: toNumber(formState.totalFatGrams),
-      saturatedFatGrams: toNumber(formState.saturatedFatGrams),
-      proteinGrams: toNumber(formState.proteinGrams),
-      fiberGrams: toNumber(formState.fiberGrams),
-      ingredients: formState.ingredients,
-      claims: splitClaims(formState.claims),
-    });
+    const nextResult = generateValidatedFoodTruthReport(
+      buildFoodLabelInputFromManualState(formState)
+    );
 
     setResult(nextResult);
   };
