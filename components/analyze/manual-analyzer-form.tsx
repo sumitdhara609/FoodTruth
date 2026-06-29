@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { FormField } from "@/components/analyze/form-field";
+import { FormTextarea } from "@/components/analyze/form-textarea";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -126,14 +128,6 @@ export function ManualAnalyzerForm() {
     return fieldErrors.get(field);
   };
 
-  const getFieldClassName = (field: keyof ManualAnalyzerState) => {
-    const hasError = fieldErrors.has(field);
-
-    return hasError
-      ? "mt-2 w-full rounded-2xl border border-[var(--danger)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--danger)]"
-      : "mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]/40";
-  };
-
   const updateField = (key: keyof ManualAnalyzerState, value: string) => {
     setFormState((currentState) => ({
       ...currentState,
@@ -161,23 +155,15 @@ export function ManualAnalyzerForm() {
 
   const renderNumericField = (field: NumericField) => {
     return (
-      <label key={field.key} className="block">
-        <span className="text-xs font-medium text-[var(--foreground)]/58">
-          {field.label}
-        </span>
-        <input
-          value={formState[field.key]}
-          onChange={(event) => updateField(field.key, event.target.value)}
-          placeholder={field.placeholder}
-          inputMode="decimal"
-          className={getFieldClassName(field.key)}
-        />
-        {getFieldError(field.key) && (
-          <p className="mt-2 text-xs text-[var(--danger)]">
-            {getFieldError(field.key)}
-          </p>
-        )}
-      </label>
+      <FormField
+        key={field.key}
+        label={field.label}
+        value={formState[field.key]}
+        placeholder={field.placeholder}
+        inputMode="decimal"
+        error={getFieldError(field.key)}
+        onChange={(value) => updateField(field.key, value)}
+      />
     );
   };
 
@@ -204,52 +190,33 @@ export function ManualAnalyzerForm() {
             description="Start with the basic label identity before reading the nutrition panel."
           >
             <div className="grid gap-4 sm:grid-cols-3">
-              <label className="block sm:col-span-2">
-                <span className="text-xs font-medium text-[var(--foreground)]/58">
-                  Product name
-                </span>
-                <input
+              <div className="sm:col-span-2">
+                <FormField
+                  label="Product name"
                   value={formState.productName}
-                  onChange={(event) =>
-                    updateField("productName", event.target.value)
-                  }
                   placeholder="Example: Multigrain Breakfast Bar"
-                  className={getFieldClassName("productName")}
+                  error={getFieldError("productName")}
+                  onChange={(value) => updateField("productName", value)}
                 />
-                {getFieldError("productName") && (
-                  <p className="mt-2 text-xs text-[var(--danger)]">
-                    {getFieldError("productName")}
-                  </p>
-                )}
-              </label>
+              </div>
 
-              <label className="block">
-                <span className="text-xs font-medium text-[var(--foreground)]/58">
-                  Category
-                </span>
-                <input
-                  value={formState.category}
-                  onChange={(event) =>
-                    updateField("category", event.target.value)
-                  }
-                  placeholder="Snack"
-                  className={getFieldClassName("category")}
-                />
-              </label>
+              <FormField
+                label="Category"
+                value={formState.category}
+                placeholder="Snack"
+                error={getFieldError("category")}
+                onChange={(value) => updateField("category", value)}
+              />
 
-              <label className="block sm:col-span-3">
-                <span className="text-xs font-medium text-[var(--foreground)]/58">
-                  Brand name
-                </span>
-                <input
+              <div className="sm:col-span-3">
+                <FormField
+                  label="Brand name"
                   value={formState.brandName}
-                  onChange={(event) =>
-                    updateField("brandName", event.target.value)
-                  }
                   placeholder="Optional"
-                  className={getFieldClassName("brandName")}
+                  error={getFieldError("brandName")}
+                  onChange={(value) => updateField("brandName", value)}
                 />
-              </label>
+              </div>
             </div>
           </FormSection>
 
@@ -278,25 +245,14 @@ export function ManualAnalyzerForm() {
             title="Ingredient list"
             description="Paste the ingredient list exactly as written so FoodTruth can detect clarity signals."
           >
-            <label className="block">
-              <span className="text-xs font-medium text-[var(--foreground)]/58">
-                Ingredients
-              </span>
-              <textarea
-                value={formState.ingredients}
-                onChange={(event) =>
-                  updateField("ingredients", event.target.value)
-                }
-                placeholder="Paste the ingredient list exactly as written on the label."
-                rows={5}
-                className={`${getFieldClassName("ingredients")} resize-none leading-6`}
-              />
-              {getFieldError("ingredients") && (
-                <p className="mt-2 text-xs text-[var(--danger)]">
-                  {getFieldError("ingredients")}
-                </p>
-              )}
-            </label>
+            <FormTextarea
+              label="Ingredients"
+              value={formState.ingredients}
+              placeholder="Paste the ingredient list exactly as written on the label."
+              rows={5}
+              error={getFieldError("ingredients")}
+              onChange={(value) => updateField("ingredients", value)}
+            />
           </FormSection>
 
           <FormSection
@@ -304,17 +260,13 @@ export function ManualAnalyzerForm() {
             title="Front-label claims"
             description="Add visible claims such as high fiber, natural, no added sugar, or energy."
           >
-            <label className="block">
-              <span className="text-xs font-medium text-[var(--foreground)]/58">
-                Claims
-              </span>
-              <input
-                value={formState.claims}
-                onChange={(event) => updateField("claims", event.target.value)}
-                placeholder="Example: high fiber, natural, no added sugar"
-                className={getFieldClassName("claims")}
-              />
-            </label>
+            <FormField
+              label="Claims"
+              value={formState.claims}
+              placeholder="Example: high fiber, natural, no added sugar"
+              error={getFieldError("claims")}
+              onChange={(value) => updateField("claims", value)}
+            />
           </FormSection>
         </div>
 
