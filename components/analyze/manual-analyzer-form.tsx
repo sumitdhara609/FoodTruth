@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalyzerStatusStrip } from "@/components/analyze/analyzer-status-strip";
 import { useMemo, useState, type ReactNode } from "react";
 import { FormField } from "@/components/analyze/form-field";
 import { FormTextarea } from "@/components/analyze/form-textarea";
@@ -182,6 +183,10 @@ export function ManualAnalyzerForm() {
             claims. FoodTruth will convert them into a structured label report.
           </p>
         </div>
+
+<div className="mt-6">
+  <AnalyzerStatusStrip activeMode="Manual entry" />
+</div>
 
         <div className="mt-8 space-y-5">
           <FormSection
