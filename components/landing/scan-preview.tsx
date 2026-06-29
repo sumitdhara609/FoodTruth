@@ -1,111 +1,131 @@
 const reportItems = [
   {
     label: "Nutrition Load",
-    value: "High sugar density",
+    value: "Sugar density needs attention",
   },
   {
     label: "Ingredient Clarity",
-    value: "3 sugar aliases found",
+    value: "Multiple sweetener terms found",
   },
   {
-    label: "Claim Risk",
-    value: "Health claim needs context",
+    label: "Claim Check",
+    value: "Front claim needs back-label context",
   },
   {
     label: "Serving Reality",
-    value: "5 servings per pack",
+    value: "Small serving size may change interpretation",
   },
 ];
 
+const nutritionLines = ["Sugar 12g", "Sodium 110mg", "Fiber 2g", "Protein 4g"];
+
 export function ScanPreview() {
   return (
-    <div className="relative mx-auto w-full max-w-[420px]">
-      <div className="absolute -left-8 top-16 hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-4 shadow-[var(--shadow-soft)] backdrop-blur-xl lg:block">
-        <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--foreground)]/45">
-          Input Modes
+    <div className="relative mx-auto w-full max-w-[430px]">
+      <div className="hidden lg:block absolute -left-4 top-16 rounded-3xl border border-[var(--border)] bg-[var(--surface)]/95 p-4 shadow-[var(--shadow-soft)] backdrop-blur-xl">
+        <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--foreground)]/55">
+          Shopping Flow
         </p>
-        <div className="mt-3 space-y-2 text-xs text-[var(--foreground)]/70">
-          <p>Manual entry</p>
-          <p>Label upload</p>
-          <p>Instant scan</p>
+        <div className="mt-3 space-y-2 text-xs text-[var(--foreground)]/78">
+          <p>Open on mobile</p>
+          <p>Scan the label</p>
+          <p>Understand before buying</p>
         </div>
       </div>
 
-      <div className="absolute -right-6 bottom-20 hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-4 shadow-[var(--shadow-soft)] backdrop-blur-xl lg:block">
-        <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--foreground)]/45">
-          Report
+      <div className="hidden lg:block absolute -right-4 bottom-28 rounded-3xl border border-[var(--border)] bg-[var(--surface)]/95 p-4 shadow-[var(--shadow-soft)] backdrop-blur-xl">
+        <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--foreground)]/55">
+          FoodTruth
         </p>
         <p className="mt-2 text-2xl font-semibold tracking-[-0.06em] text-[var(--foreground)]">
-          28
-          <span className="text-sm text-[var(--foreground)]/45">/100</span>
+          64
+          <span className="ml-1 text-sm text-[var(--foreground)]/55">/100</span>
+        </p>
+        <p className="mt-1 text-[11px] text-[var(--warning)]">
+          Needs context
         </p>
       </div>
 
-      <div className="rounded-[2.5rem] border border-[var(--border)] bg-[var(--background)]/70 p-3 shadow-[var(--shadow-soft)] backdrop-blur-xl">
-        <div className="overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]">
+      <div className="rounded-[2.6rem] border border-[var(--border)] bg-[var(--background)]/72 p-3 shadow-[var(--shadow-soft)] backdrop-blur-xl">
+        <div className="overflow-hidden rounded-[2.05rem] border border-[var(--border)] bg-[var(--surface)]">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[var(--primary)]/70">
-                FoodTruth Scan
+              <p className="text-xs uppercase tracking-[0.28em] text-[var(--primary)]/85">
+                Live Label Scan
               </p>
-              <p className="mt-1 text-[11px] text-[var(--foreground)]/45">
-                Label intelligence preview
+              <p className="mt-1 text-[11px] text-[var(--foreground)]/60">
+                Fast mobile-first preview
               </p>
             </div>
 
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_24px_var(--accent)]" />
+            <span className="rounded-full bg-[var(--accent-muted)] px-3 py-1 text-[10px] font-medium text-[var(--primary)]">
+              Ready
+            </span>
           </div>
 
           <div className="p-5">
-            <div className="relative rounded-[1.5rem] border border-[var(--border)] bg-[var(--background)] p-4">
-              <div className="absolute left-4 top-4 h-8 w-8 rounded-tl-2xl border-l border-t border-[var(--accent)]" />
-              <div className="absolute right-4 top-4 h-8 w-8 rounded-tr-2xl border-r border-t border-[var(--accent)]" />
-              <div className="absolute bottom-4 left-4 h-8 w-8 rounded-bl-2xl border-b border-l border-[var(--accent)]" />
-              <div className="absolute bottom-4 right-4 h-8 w-8 rounded-br-2xl border-b border-r border-[var(--accent)]" />
+            <div className="relative overflow-hidden rounded-[1.7rem] border border-[var(--border)] bg-[var(--background)] p-4">
+              <div className="pointer-events-none absolute left-4 top-4 h-9 w-9 rounded-tl-3xl border-l-2 border-t-2 border-[var(--accent)]" />
+              <div className="pointer-events-none absolute right-4 top-4 h-9 w-9 rounded-tr-3xl border-r-2 border-t-2 border-[var(--accent)]" />
+              <div className="pointer-events-none absolute bottom-4 left-4 h-9 w-9 rounded-bl-3xl border-b-2 border-l-2 border-[var(--accent)]" />
+              <div className="pointer-events-none absolute bottom-4 right-4 h-9 w-9 rounded-br-3xl border-b-2 border-r-2 border-[var(--accent)]" />
 
-              <div className="rounded-2xl bg-[var(--surface)] p-4">
+              <div className="rounded-[1.25rem] bg-[var(--surface)] p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold text-[var(--foreground)]">
-                      Choco Energy Bar
+                      Multigrain Breakfast Bar
                     </p>
-                    <p className="mt-1 text-xs text-[var(--foreground)]/45">
-                      Demo Foods · Snack
+                    <p className="mt-1 text-xs text-[var(--foreground)]/60">
+                      Packaged snack · plant-based sample
                     </p>
                   </div>
-                  <span className="rounded-full bg-[var(--accent-muted)] px-3 py-1 text-[10px] font-medium text-[var(--primary)]">
-                    Scanning
+
+                  <span className="shrink-0 rounded-full bg-[var(--accent-muted)] px-3 py-1 text-[10px] font-medium text-[var(--primary)]">
+                    Detected
                   </span>
                 </div>
 
-                <div className="mt-5 space-y-2">
-                  {["Sugar 16g", "Sodium 120mg", "Sat Fat 4g"].map((item) => (
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  {nutritionLines.map((item) => (
                     <div
                       key={item}
-                      className="h-9 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-xs text-[var(--foreground)]/55"
+                      className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-xs font-medium text-[var(--foreground)]/72"
                     >
                       {item}
                     </div>
                   ))}
                 </div>
+
+                <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--foreground)]/50">
+                    Ingredients detected
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-[var(--foreground)]/72">
+                    whole grains, dates, sugar, glucose syrup, cocoa, stabilizer
+                  </p>
+                </div>
               </div>
+
+              <div className="pointer-events-none mt-4 h-px bg-[var(--accent)]/70 shadow-[0_0_24px_var(--accent)]" />
             </div>
 
-            <div className="mt-5 rounded-[1.5rem] border border-[var(--border)] bg-[var(--background)]/70 p-4">
-              <div className="flex items-end justify-between">
+            <div className="mt-5 rounded-[1.6rem] border border-[var(--border)] bg-[var(--background)]/72 p-4">
+              <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs text-[var(--foreground)]/45">
+                  <p className="text-xs text-[var(--foreground)]/58">
                     FoodTruth Score
                   </p>
-                  <p className="mt-1 text-5xl font-semibold tracking-[-0.08em]">
-                    28
-                    <span className="text-lg text-[var(--foreground)]/40">
+                  <p className="mt-1 flex items-end gap-1 text-5xl font-semibold tracking-[-0.08em] text-[var(--foreground)]">
+                    64
+                    <span className="pb-1 text-lg tracking-normal text-[var(--foreground)]/50">
                       /100
                     </span>
                   </p>
                 </div>
-                <p className="rounded-full bg-[var(--danger)]/10 px-3 py-1 text-xs text-[var(--danger)]">
-                  Very High Concern
+
+                <p className="shrink-0 rounded-full bg-[var(--warning)]/12 px-3 py-1 text-xs font-medium text-[var(--warning)]">
+                  Needs context
                 </p>
               </div>
 
@@ -115,19 +135,31 @@ export function ScanPreview() {
                     key={item.label}
                     className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
                   >
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--foreground)]/35">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--foreground)]/48">
                       {item.label}
                     </p>
-                    <p className="mt-1 text-sm text-[var(--foreground)]/72">
+                    <p className="mt-1 text-sm text-[var(--foreground)]/78">
                       {item.value}
                     </p>
                   </div>
                 ))}
               </div>
+
+              <div className="mt-4 rounded-2xl bg-[var(--accent-muted)] px-4 py-3">
+                <p className="text-xs leading-5 text-[var(--primary)]">
+                  FoodTruth explains the label clearly so users can decide with
+                  better awareness.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <p className="mx-auto mt-5 max-w-sm text-center text-xs leading-6 text-[var(--foreground)]/55">
+        Built for quick checks in real shopping moments — scan, understand,
+        decide with awareness.
+      </p>
     </div>
   );
 }
