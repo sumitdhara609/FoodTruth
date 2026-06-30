@@ -15,7 +15,7 @@ export const reportActionConfig: ReportActionConfig[] = [
   {
     key: "save",
     label: "Save to account",
-    status: "Planned",
+    status: "Ready",
   },
   {
     key: "reset",

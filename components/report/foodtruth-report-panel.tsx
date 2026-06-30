@@ -10,6 +10,9 @@ import { ReportScoreCard } from "@/components/report/report-score-card";
 
 type FoodTruthReportPanelProps = {
   result: ValidatedFoodTruthResult | null;
+  isSaving: boolean;
+  saveMessage: string | null;
+  onSave: () => void;
   onReset: () => void;
 };
 
@@ -22,6 +25,9 @@ const emptyReportItems = [
 
 export function FoodTruthReportPanel({
   result,
+  isSaving,
+  saveMessage,
+  onSave,
   onReset,
 }: FoodTruthReportPanelProps) {
   const report = result?.success ? result.report : null;
@@ -36,7 +42,15 @@ export function FoodTruthReportPanel({
 
       {result && !result.success && <ValidationErrorState result={result} />}
 
-      {report && <ReportContent report={report} onReset={onReset} />}
+      {report && (
+        <ReportContent
+          report={report}
+          isSaving={isSaving}
+          saveMessage={saveMessage}
+          onSave={onSave}
+          onReset={onReset}
+        />
+      )}
     </aside>
   );
 }
@@ -103,9 +117,15 @@ function ValidationErrorState({
 
 function ReportContent({
   report,
+  isSaving,
+  saveMessage,
+  onSave,
   onReset,
 }: {
   report: FoodTruthReport;
+  isSaving: boolean;
+  saveMessage: string | null;
+  onSave: () => void;
   onReset: () => void;
 }) {
   return (
@@ -119,7 +139,13 @@ function ReportContent({
       </div>
 
       <div className="mt-5">
-        <ReportActions report={report} onReset={onReset} />
+        <ReportActions
+          report={report}
+          isSaving={isSaving}
+          saveMessage={saveMessage}
+          onSave={onSave}
+          onReset={onReset}
+        />
       </div>
 
       <div className="mt-5">

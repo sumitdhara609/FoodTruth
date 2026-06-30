@@ -7,10 +7,19 @@ import { formatFoodTruthReportForCopy } from "@/lib/report/report-copy";
 
 type ReportActionsProps = {
   report: FoodTruthReport;
+  isSaving: boolean;
+  saveMessage: string | null;
+  onSave: () => void;
   onReset: () => void;
 };
 
-export function ReportActions({ report, onReset }: ReportActionsProps) {
+export function ReportActions({
+  report,
+  isSaving,
+  saveMessage,
+  onSave,
+  onReset,
+}: ReportActionsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyReport = async () => {
@@ -28,7 +37,10 @@ export function ReportActions({ report, onReset }: ReportActionsProps) {
   return (
     <ReportActionBar
       copied={copied}
+      isSaving={isSaving}
+      saveMessage={saveMessage}
       onCopy={handleCopyReport}
+      onSave={onSave}
       onReset={onReset}
     />
   );

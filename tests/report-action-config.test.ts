@@ -6,16 +6,16 @@ import {
 } from "@/lib/report/report-action-config";
 
 describe("report action configuration", () => {
-  it("keeps copy and reset ready", () => {
+  it("keeps copy, save, and reset ready", () => {
     expect(getReadyReportActions().map((action) => action.key)).toEqual([
       "copy",
+      "save",
       "reset",
     ]);
   });
 
-  it("keeps account-heavy actions planned", () => {
+  it("keeps heavier account/export actions planned", () => {
     expect(getPlannedReportActions().map((action) => action.key)).toEqual([
-      "save",
       "compare",
       "export",
     ]);
