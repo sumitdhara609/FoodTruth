@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildFoodLabelInputFromDraft,
   createDraftFromManualState,
   createEmptyLabelReviewDraft,
 } from "@/lib/analyze/label-review-draft";
@@ -25,5 +26,15 @@ describe("label review draft", () => {
     expect(draft.productName).toBe("Multigrain Breakfast Bar");
     expect(draft.ingredients).toContain("whole grains");
     expect(draft.confidenceNotes).toEqual([]);
+  });
+
+  it("converts a review draft into FoodTruth engine input", () => {
+    const draft = createDraftFromManualState(sampleManualLabel, "manual");
+    const input = buildFoodLabelInputFromDraft(draft);
+
+    expect(input.productName).toBe("Multigrain Breakfast Bar");
+    expect(input.servingSizeGrams).toBe(40);
+    expect(input.packSizeGrams).toBe(200);
+    expect(input.claims).toEqual(["high fiber", "natural"]);
   });
 });

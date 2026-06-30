@@ -1,4 +1,8 @@
-import type { ManualAnalyzerState } from "@/lib/analyze/manual-input-adapter";
+import {
+  buildFoodLabelInputFromManualState,
+  type ManualAnalyzerState,
+} from "@/lib/analyze/manual-input-adapter";
+import type { FoodLabelInput } from "@/lib/engine/types";
 
 export type AnalyzerInputSource = "manual" | "upload" | "scan";
 
@@ -39,4 +43,10 @@ export const createDraftFromManualState = (
     source,
     confidenceNotes: [],
   };
+};
+
+export const buildFoodLabelInputFromDraft = (
+  draft: LabelReviewDraft
+): FoodLabelInput => {
+  return buildFoodLabelInputFromManualState(draft);
 };
