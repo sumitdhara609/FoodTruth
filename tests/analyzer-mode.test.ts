@@ -24,4 +24,20 @@ describe("analyzer modes", () => {
     expect(scanMode?.status).toBe("Planned");
     expect(scanMode?.href).toBe("/analyze/scan");
   });
+
+  it("keeps every analyzer mode renderable as a card", () => {
+    for (const mode of analyzerModes) {
+      expect(mode.title.length).toBeGreaterThan(0);
+      expect(mode.description.length).toBeGreaterThan(0);
+      expect(mode.href).toMatch(/^\/analyze/);
+      expect(mode.icon).toBeDefined();
+    }
+  });
+
+  it("keeps analyzer mode routes unique", () => {
+    const routes = analyzerModes.map((mode) => mode.href);
+    const uniqueRoutes = new Set(routes);
+
+    expect(uniqueRoutes.size).toBe(routes.length);
+  });
 });
