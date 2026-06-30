@@ -10,14 +10,18 @@ describe("analyzer modes", () => {
     expect(activeModes[0].href).toBe("/analyze/manual");
   });
 
-  it("keeps instant scan non-routable while upload has a placeholder route", () => {
-  const uploadMode = analyzerModes.find((mode) => mode.title === "Upload Label");
-  const scanMode = analyzerModes.find((mode) => mode.title === "Instant Scan");
+  it("keeps upload and scan as planned placeholder routes", () => {
+    const uploadMode = analyzerModes.find(
+      (mode) => mode.title === "Upload Label"
+    );
+    const scanMode = analyzerModes.find(
+      (mode) => mode.title === "Instant Scan"
+    );
 
-  expect(uploadMode?.status).toBe("Planned");
-  expect(uploadMode?.href).toBe("/analyze/upload");
+    expect(uploadMode?.status).toBe("Planned");
+    expect(uploadMode?.href).toBe("/analyze/upload");
 
-  expect(scanMode?.status).toBe("Planned");
-  expect(scanMode?.href).toBe("#");
-});
+    expect(scanMode?.status).toBe("Planned");
+    expect(scanMode?.href).toBe("/analyze/scan");
+  });
 });

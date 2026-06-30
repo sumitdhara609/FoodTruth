@@ -23,7 +23,7 @@ export const analyzerModes: AnalyzerMode[] = [
     title: "Upload Label",
     description:
       "Upload a packaged-food label image and prepare it for structured analysis.",
-   href: "/analyze/upload",
+    href: "/analyze/upload",
     status: "Planned",
     icon: ImagePlus,
   },
@@ -31,7 +31,7 @@ export const analyzerModes: AnalyzerMode[] = [
     title: "Instant Scan",
     description:
       "Use a camera-led flow for quick label capture while shopping or comparing products.",
-    href: "/analyze/upload",
+    href: "/analyze/scan",
     status: "Planned",
     icon: ScanLine,
   },
