@@ -1,4 +1,5 @@
 import { Camera, ScanLine, ShieldCheck } from "lucide-react";
+import { InputInfoCard } from "@/components/analyze/input-info-card";
 import { InputPlaceholderCard } from "@/components/analyze/input-placeholder-card";
 
 export function ScanInputPlaceholder() {
@@ -13,35 +14,17 @@ export function ScanInputPlaceholder() {
         />
 
         <div className="space-y-4">
-          <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--background)]/55 p-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-              <ScanLine className="h-5 w-5" />
-            </div>
+          <InputInfoCard
+            icon={ScanLine}
+            eyebrow="Review first"
+            description="Detected values should be reviewed and corrected before FoodTruth creates a report."
+          />
 
-            <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
-              Review first
-            </p>
-
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
-              Detected values should be reviewed and corrected before FoodTruth
-              creates a report.
-            </p>
-          </div>
-
-          <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--background)]/55 p-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-
-            <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
-              Storage rule
-            </p>
-
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
-              Camera images should remain temporary. Saved records should keep
-              reviewed label data and report signals only.
-            </p>
-          </div>
+          <InputInfoCard
+            icon={ShieldCheck}
+            eyebrow="Storage rule"
+            description="Camera images should remain temporary. Saved records should keep reviewed label data and report signals only."
+          />
         </div>
       </div>
     </section>

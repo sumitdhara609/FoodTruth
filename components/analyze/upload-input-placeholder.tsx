@@ -1,4 +1,5 @@
 import { ImagePlus, ShieldCheck } from "lucide-react";
+import { InputInfoCard } from "@/components/analyze/input-info-card";
 import { InputPlaceholderCard } from "@/components/analyze/input-placeholder-card";
 import { MAX_LABEL_UPLOAD_SIZE_MB } from "@/lib/account/report-storage-policy";
 
@@ -13,21 +14,11 @@ export function UploadInputPlaceholder() {
           buttonLabel="Upload coming later"
         />
 
-        <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--background)]/55 p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-
-          <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
-            Storage rule
-          </p>
-
-          <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
-            The image will be treated as a temporary input. FoodTruth records
-            should preserve reviewed label data and report signals, not file
-            names, file sizes, or original images.
-          </p>
-        </div>
+        <InputInfoCard
+          icon={ShieldCheck}
+          eyebrow="Storage rule"
+          description="The image will be treated as a temporary input. FoodTruth records should preserve reviewed label data and report signals, not file names, file sizes, or original images."
+        />
       </div>
     </section>
   );
