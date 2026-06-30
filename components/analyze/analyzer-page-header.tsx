@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function AnalyzerPageHeader() {
   return (
     <section className="pt-8">
@@ -22,10 +24,18 @@ export function AnalyzerPageHeader() {
           <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
             Current build
           </p>
+
           <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
             Manual entry is active first so the scoring engine, validation, and
             report experience stay stable before image-based flows are added.
           </p>
+
+          <Link
+            href="/account"
+            className="mt-4 inline-flex rounded-full bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
+          >
+            View account foundation
+          </Link>
         </div>
       </div>
     </section>
