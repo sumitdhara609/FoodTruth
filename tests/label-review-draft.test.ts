@@ -3,6 +3,7 @@ import {
   buildFoodLabelInputFromDraft,
   createDraftFromManualState,
   createEmptyLabelReviewDraft,
+  generateValidatedReportFromDraft,
 } from "@/lib/analyze/label-review-draft";
 import { sampleManualLabel } from "@/lib/analyze/sample-manual-label";
 
@@ -36,5 +37,18 @@ describe("label review draft", () => {
     expect(input.servingSizeGrams).toBe(40);
     expect(input.packSizeGrams).toBe(200);
     expect(input.claims).toEqual(["high fiber", "natural"]);
+  });
+
+  it("generates a validated report from a review draft", () => {
+    const draft = createDraftFromManualState(sampleManualLabel, "manual");
+    const result = generateValidatedReportFromDraft(draft);
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.report.productName).toBe("Multigrain Breakfast Bar");
+      expect(result.report.score).toBeGreaterThanOrEqual(0);
+      expect(result.report.score).toBeLessThanOrEqual(100);
+    }
   });
 });
