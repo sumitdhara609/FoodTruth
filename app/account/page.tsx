@@ -1,5 +1,6 @@
 import { ShieldCheck, Trophy, History } from "lucide-react";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
+import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
 
 const accountSignals = [
   {
@@ -21,6 +22,8 @@ const accountSignals = [
     icon: ShieldCheck,
   },
 ];
+
+<BadgeProgressPreview savedReportCount={25} />
 
 export default function AccountPage() {
   return (
