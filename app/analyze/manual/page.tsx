@@ -1,37 +1,53 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { ManualAnalyzerForm } from "@/components/analyze/manual-analyzer-form";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 
-export default function ManualAnalyzePage() {
+export default function ManualAnalyzerPage() {
   return (
-    <main className="min-h-screen overflow-hidden px-4 py-4 sm:px-8 sm:py-8 lg:px-14">
-      <section className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl flex-col overflow-hidden rounded-[2.25rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -left-32 top-8 h-72 w-72 rounded-full bg-[var(--accent)]/18 blur-3xl" />
-        <div className="pointer-events-none absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-[var(--primary)]/10 blur-3xl" />
+    <main className="min-h-screen bg-[var(--background)] px-5 py-6 text-[var(--foreground)] sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-7xl">
+        <Link
+          href="/analyze"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)]/62 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to analyze
+        </Link>
 
-        <nav className="relative z-10 flex items-center justify-between gap-6">
-          <div>
-            <Link
-              href="/analyze"
-              className="text-sm uppercase tracking-[0.38em] text-[var(--primary)]/75"
-            >
-              FoodTruth
-            </Link>
-            <p className="mt-1 text-xs text-[var(--foreground)]/50">
-              Manual label analysis
-            </p>
+        <section className="mt-10">
+          <p className="text-xs uppercase tracking-[0.32em] text-[var(--primary)]/70">
+            FoodTruth Analyzer
+          </p>
+
+          <div className="mt-4 grid gap-6 lg:grid-cols-[0.9fr_0.6fr] lg:items-end">
+            <div>
+              <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.07em] text-[var(--foreground)] sm:text-5xl">
+                Manual label intelligence.
+              </h1>
+
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[var(--foreground)]/58 sm:text-base sm:leading-8">
+                Enter the visible label values, ingredients, and claims to
+                generate a structured FoodTruth report with nutrition,
+                ingredient, claim, and serving-size signals.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)]/72 p-4">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
+                Current phase
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
+                Manual entry is active while scan and upload flows are prepared
+                as future analyzer modes.
+              </p>
+            </div>
           </div>
+        </section>
 
-          <ThemeToggle />
-        </nav>
-
-        <div className="relative z-10 flex-1 py-12">
+        <section className="mt-8">
           <ManualAnalyzerForm />
-        </div>
-
-        <SiteFooter />
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
