@@ -1,26 +1,5 @@
-import { Camera, FileCheck2, ShieldCheck } from "lucide-react";
 import { ReviewStepCard } from "@/components/analyze/review-step-card";
-
-const scanSteps = [
-  {
-    title: "Temporary capture",
-    description:
-      "The camera image will be used only to detect label values during the session.",
-    icon: Camera,
-  },
-  {
-    title: "Review before report",
-    description:
-      "Detected values will be shown for correction before FoodTruth generates a report.",
-    icon: FileCheck2,
-  },
-  {
-    title: "Data-light history",
-    description:
-      "Saved records will keep reviewed label data and report signals, not camera images or file metadata.",
-    icon: ShieldCheck,
-  },
-];
+import { scanReviewSteps } from "@/lib/analyze/scan-review-flow";
 
 export function ScanReviewPlaceholder() {
   return (
@@ -49,7 +28,7 @@ export function ScanReviewPlaceholder() {
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-3">
-        {scanSteps.map((step) => (
+        {scanReviewSteps.map((step) => (
           <ReviewStepCard
             key={step.title}
             title={step.title}

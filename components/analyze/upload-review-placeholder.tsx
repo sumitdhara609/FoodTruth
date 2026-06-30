@@ -1,27 +1,6 @@
-import { FileCheck2, ShieldCheck, UploadCloud } from "lucide-react";
 import { ReviewStepCard } from "@/components/analyze/review-step-card";
 import { MAX_LABEL_UPLOAD_SIZE_MB } from "@/lib/account/report-storage-policy";
-
-const uploadSteps = [
-  {
-    title: "Temporary upload",
-    description:
-      "The label image will be used only for extraction and review, not saved as a record.",
-    icon: UploadCloud,
-  },
-  {
-    title: "Review before report",
-    description:
-      "Extracted values will be shown for correction before FoodTruth generates a report.",
-    icon: FileCheck2,
-  },
-  {
-    title: "Data-light history",
-    description:
-      "Saved records will keep reviewed label data and report signals, not file names or image metadata.",
-    icon: ShieldCheck,
-  },
-];
+import { uploadReviewSteps } from "@/lib/analyze/upload-review-flow";
 
 export function UploadReviewPlaceholder() {
   return (
@@ -52,7 +31,7 @@ export function UploadReviewPlaceholder() {
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-3">
-        {uploadSteps.map((step) => (
+        {uploadReviewSteps.map((step) => (
           <ReviewStepCard
             key={step.title}
             title={step.title}
