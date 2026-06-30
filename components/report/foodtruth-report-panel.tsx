@@ -2,14 +2,15 @@ import type {
   FoodTruthReport,
   ValidatedFoodTruthResult,
 } from "@/lib/engine/types";
-import { ReportCard } from "@/components/report/report-card";
-import { ReportDisclaimer } from "@/components/report/report-disclaimer";
 import { ReportActions } from "@/components/report/report-actions";
+import { ReportCard } from "@/components/report/report-card";
 import { ReportConfidence } from "@/components/report/report-confidence";
+import { ReportDisclaimer } from "@/components/report/report-disclaimer";
 import { ReportScoreCard } from "@/components/report/report-score-card";
 
 type FoodTruthReportPanelProps = {
   result: ValidatedFoodTruthResult | null;
+  onReset: () => void;
 };
 
 const emptyReportItems = [
@@ -19,7 +20,10 @@ const emptyReportItems = [
   "Serving reality",
 ];
 
-export function FoodTruthReportPanel({ result }: FoodTruthReportPanelProps) {
+export function FoodTruthReportPanel({
+  result,
+  onReset,
+}: FoodTruthReportPanelProps) {
   const report = result?.success ? result.report : null;
 
   return (
@@ -32,7 +36,7 @@ export function FoodTruthReportPanel({ result }: FoodTruthReportPanelProps) {
 
       {result && !result.success && <ValidationErrorState result={result} />}
 
-      {report && <ReportContent report={report} />}
+      {report && <ReportContent report={report} onReset={onReset} />}
     </aside>
   );
 }
@@ -97,7 +101,13 @@ function ValidationErrorState({
   );
 }
 
-function ReportContent({ report }: { report: FoodTruthReport }) {
+function ReportContent({
+  report,
+  onReset,
+}: {
+  report: FoodTruthReport;
+  onReset: () => void;
+}) {
   return (
     <div className="mt-6">
       <ReportScoreCard report={report} />
@@ -108,33 +118,33 @@ function ReportContent({ report }: { report: FoodTruthReport }) {
         </p>
       </div>
 
-<div className="mt-5">
-  <ReportActions report={report} />
-</div>
+      <div className="mt-5">
+        <ReportActions report={report} onReset={onReset} />
+      </div>
 
-<div className="mt-5">
-  <ReportConfidence report={report} />
-</div>
+      <div className="mt-5">
+        <ReportConfidence report={report} />
+      </div>
 
       <div className="mt-5 space-y-3">
         <ReportCard
           title="Nutrition load"
-          value={`Sugar: ${report.nutritionLoad.sugarLoad} · Sodium: ${report.nutritionLoad.sodiumLoad} · Saturated fat: ${report.nutritionLoad.saturatedFatLoad}`}
+          value={`Sugar: ${report.nutritionLoad.sugarLoad} • Sodium: ${report.nutritionLoad.sodiumLoad} • Saturated fat: ${report.nutritionLoad.saturatedFatLoad}`}
         />
 
         <ReportCard
           title="Nutrition support"
-          value={`Fiber: ${report.nutritionLoad.fiberSupport} · Protein: ${report.nutritionLoad.proteinSupport} · Calories: ${report.nutritionLoad.calorieDensity}`}
+          value={`Fiber: ${report.nutritionLoad.fiberSupport} • Protein: ${report.nutritionLoad.proteinSupport} • Calories: ${report.nutritionLoad.calorieDensity}`}
         />
 
         <ReportCard
           title="Ingredient clarity"
-          value={`${report.ingredientClarity.ingredientCount} ingredients · ${report.ingredientClarity.ingredientComplexity} complexity`}
+          value={`${report.ingredientClarity.ingredientCount} ingredients • ${report.ingredientClarity.ingredientComplexity} complexity`}
         />
 
         <ReportCard
           title="Serving reality"
-          value={`${report.servingSizeReality.servingsPerPack} servings · ${report.servingSizeReality.risk} risk`}
+          value={`${report.servingSizeReality.servingsPerPack} servings • ${report.servingSizeReality.risk} risk`}
         />
       </div>
 
@@ -144,9 +154,9 @@ function ReportContent({ report }: { report: FoodTruthReport }) {
 
       <Checklist report={report} />
 
-<div className="mt-5">
-  <ReportDisclaimer />
-</div>
+      <div className="mt-5">
+        <ReportDisclaimer />
+      </div>
     </div>
   );
 }

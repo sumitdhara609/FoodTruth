@@ -228,7 +228,7 @@ export function ManualAnalyzerForm() {
         </div>
       </div>
 
-      <FoodTruthReportPanel result={result} />
+      <FoodTruthReportPanel result={result} onReset={handleClearForm} />
     </div>
   );
 }

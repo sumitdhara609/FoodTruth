@@ -1,26 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, GitCompareArrows, Save } from "lucide-react";
+import { ReportActionBar } from "@/components/report/report-action-bar";
 import type { FoodTruthReport } from "@/lib/engine/types";
+import { formatFoodTruthReportForCopy } from "@/lib/report/report-copy";
 
 type ReportActionsProps = {
   report: FoodTruthReport;
+  onReset: () => void;
 };
 
-export function ReportActions({ report }: ReportActionsProps) {
+export function ReportActions({ report, onReset }: ReportActionsProps) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopySummary = async () => {
-    const summary = [
-      `FoodTruth Report: ${report.productName}`,
-      `Score: ${report.score}/100`,
-      `Grade: ${report.grade}`,
-      `Risk level: ${report.riskLevel}`,
-      `Summary: ${report.summary}`,
-    ].join("\n");
+  const handleCopyReport = async () => {
+    const copyText = formatFoodTruthReportForCopy(report);
 
-    await navigator.clipboard.writeText(summary);
+    await navigator.clipboard.writeText(copyText);
 
     setCopied(true);
 
@@ -30,33 +26,10 @@ export function ReportActions({ report }: ReportActionsProps) {
   };
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <button
-        type="button"
-        onClick={handleCopySummary}
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--primary)] px-4 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        {copied ? "Copied" : "Copy summary"}
-      </button>
-
-      <button
-        type="button"
-        disabled
-        className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-xs font-semibold text-[var(--foreground)]/35"
-      >
-        <Save className="h-4 w-4" />
-        Save report
-      </button>
-
-      <button
-        type="button"
-        disabled
-        className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-xs font-semibold text-[var(--foreground)]/35"
-      >
-        <GitCompareArrows className="h-4 w-4" />
-        Compare later
-      </button>
-    </div>
+    <ReportActionBar
+      copied={copied}
+      onCopy={handleCopyReport}
+      onReset={onReset}
+    />
   );
 }
