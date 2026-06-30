@@ -6,6 +6,7 @@ import { ReportCard } from "@/components/report/report-card";
 import { ReportDisclaimer } from "@/components/report/report-disclaimer";
 import { ReportActions } from "@/components/report/report-actions";
 import { ReportConfidence } from "@/components/report/report-confidence";
+import { ReportScoreCard } from "@/components/report/report-score-card";
 
 type FoodTruthReportPanelProps = {
   result: ValidatedFoodTruthResult | null;
@@ -99,27 +100,7 @@ function ValidationErrorState({
 function ReportContent({ report }: { report: FoodTruthReport }) {
   return (
     <div className="mt-6">
-      <div className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-[var(--foreground)]/48">
-              FoodTruth Score
-            </p>
-            <p className="mt-2 text-5xl font-semibold tracking-[-0.08em] text-[var(--foreground)]">
-              {report.score}
-              <span className="ml-1 text-lg text-[var(--foreground)]/45">
-                /100
-              </span>
-            </p>
-          </div>
-
-          <span className="rounded-full bg-[var(--accent-muted)] px-3 py-1 text-xs font-medium text-[var(--primary)]">
-            {report.riskLevel}
-          </span>
-        </div>
-
-        <p className="mt-4 text-sm text-[var(--warning)]">{report.grade}</p>
-      </div>
+      <ReportScoreCard report={report} />
 
       <div className="mt-5 rounded-2xl bg-[var(--accent-muted)] px-4 py-3">
         <p className="text-xs leading-6 text-[var(--primary)]">
