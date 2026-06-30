@@ -1,6 +1,8 @@
-import { ShieldCheck, Trophy, History } from "lucide-react";
-import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
+import { History, ShieldCheck, Trophy } from "lucide-react";
 import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
+import { SavedReportHistoryPreview } from "@/components/account/saved-report-history-preview";
+import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
+import { sampleSavedReports } from "@/lib/account/sample-saved-reports";
 
 const accountSignals = [
   {
@@ -22,8 +24,6 @@ const accountSignals = [
     icon: ShieldCheck,
   },
 ];
-
-<BadgeProgressPreview savedReportCount={25} />
 
 export default function AccountPage() {
   return (
@@ -49,6 +49,7 @@ export default function AccountPage() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--foreground)]/35">
               Account phase
             </p>
+
             <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/64">
               The account foundation is being prepared before Supabase auth and
               database tables are connected.
@@ -81,6 +82,10 @@ export default function AccountPage() {
           );
         })}
       </section>
+
+      <BadgeProgressPreview savedReportCount={25} />
+
+      <SavedReportHistoryPreview reports={sampleSavedReports} />
 
       <section className="mt-10 rounded-[2rem] border border-dashed border-[var(--border)] bg-[var(--surface)]/55 p-8 text-center">
         <p className="text-sm font-medium text-[var(--foreground)]/70">
