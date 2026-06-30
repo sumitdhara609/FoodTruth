@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, FileText, ImagePlus, ScanLine } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { analyzerModes } from "@/lib/analyze/analyzer-mode";
 
 const analyzerModes = [
   {
