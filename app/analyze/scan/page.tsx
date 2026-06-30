@@ -1,5 +1,6 @@
 import { ScanLine } from "lucide-react";
 import { AnalyzerPlaceholderPage } from "@/components/analyze/analyzer-placeholder-page";
+import { ScanReviewPlaceholder } from "@/components/analyze/scan-review-placeholder";
 
 export default function ScanAnalyzerPage() {
   return (
@@ -12,6 +13,8 @@ export default function ScanAnalyzerPage() {
       placeholderTitle="Scan flow placeholder"
       placeholderDescription="The camera workflow will be added only after the upload and review pipeline is stable."
       icon={ScanLine}
-    />
+    >
+      <ScanReviewPlaceholder />
+    </AnalyzerPlaceholderPage>
   );
 }
