@@ -1,83 +1,23 @@
 "use client";
 
-import { AnalyzerStatusStrip } from "@/components/analyze/analyzer-status-strip";
 import { useMemo, useState } from "react";
-import { FormSection } from "@/components/analyze/form-section";
+import { AnalyzerStatusStrip } from "@/components/analyze/analyzer-status-strip";
 import { FormField } from "@/components/analyze/form-field";
+import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
 } from "@/lib/analyze/manual-input-adapter";
-import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
+import {
+  nutritionFields,
+  servingFields,
+  type ManualNumericField,
+} from "@/lib/analyze/manual-field-config";
+import { sampleManualLabel } from "@/lib/analyze/sample-manual-label";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
 import type { ValidatedFoodTruthResult } from "@/lib/engine/types";
-
-type NumericField = {
-  key:
-    | "servingSizeGrams"
-    | "packSizeGrams"
-    | "calories"
-    | "sugarGrams"
-    | "sodiumMg"
-    | "totalFatGrams"
-    | "saturatedFatGrams"
-    | "proteinGrams"
-    | "fiberGrams";
-  label: string;
-  placeholder: string;
-};
-
-const servingFields: NumericField[] = [
-  {
-    key: "servingSizeGrams",
-    label: "Serving size",
-    placeholder: "40",
-  },
-  {
-    key: "packSizeGrams",
-    label: "Pack size",
-    placeholder: "200",
-  },
-];
-
-const nutritionFields: NumericField[] = [
-  {
-    key: "calories",
-    label: "Calories",
-    placeholder: "180",
-  },
-  {
-    key: "sugarGrams",
-    label: "Sugar",
-    placeholder: "12",
-  },
-  {
-    key: "sodiumMg",
-    label: "Sodium",
-    placeholder: "110",
-  },
-  {
-    key: "totalFatGrams",
-    label: "Total fat",
-    placeholder: "6",
-  },
-  {
-    key: "saturatedFatGrams",
-    label: "Saturated fat",
-    placeholder: "2",
-  },
-  {
-    key: "proteinGrams",
-    label: "Protein",
-    placeholder: "4",
-  },
-  {
-    key: "fiberGrams",
-    label: "Fiber",
-    placeholder: "2",
-  },
-];
+import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 
 const initialFormState: ManualAnalyzerState = {
   productName: "",
@@ -94,23 +34,6 @@ const initialFormState: ManualAnalyzerState = {
   fiberGrams: "",
   ingredients: "",
   claims: "",
-};
-
-const sampleFormState: ManualAnalyzerState = {
-  productName: "Multigrain Breakfast Bar",
-  brandName: "Demo Foods",
-  category: "Snack",
-  servingSizeGrams: "40",
-  packSizeGrams: "200",
-  calories: "180",
-  sugarGrams: "12",
-  sodiumMg: "110",
-  totalFatGrams: "6",
-  saturatedFatGrams: "2",
-  proteinGrams: "4",
-  fiberGrams: "2",
-  ingredients: "whole grains, dates, sugar, glucose syrup, cocoa, stabilizer",
-  claims: "high fiber, natural",
 };
 
 export function ManualAnalyzerForm() {
@@ -146,7 +69,7 @@ export function ManualAnalyzerForm() {
   };
 
   const handleUseSample = () => {
-    setFormState(sampleFormState);
+    setFormState(sampleManualLabel);
     setResult(null);
   };
 
@@ -155,7 +78,7 @@ export function ManualAnalyzerForm() {
     setResult(null);
   };
 
-  const renderNumericField = (field: NumericField) => {
+  const renderNumericField = (field: ManualNumericField) => {
     return (
       <FormField
         key={field.key}
@@ -176,18 +99,20 @@ export function ManualAnalyzerForm() {
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--primary)]/70">
             Manual Entry
           </p>
+
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-[var(--foreground)]">
             Enter label details
           </h2>
+
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--foreground)]/58">
             Add the visible nutrition values, ingredients, and front-label
             claims. FoodTruth will convert them into a structured label report.
           </p>
         </div>
 
-<div className="mt-6">
-  <AnalyzerStatusStrip activeMode="Manual entry" />
-</div>
+        <div className="mt-6">
+          <AnalyzerStatusStrip activeMode="Manual entry" />
+        </div>
 
         <div className="mt-8 space-y-5">
           <FormSection
