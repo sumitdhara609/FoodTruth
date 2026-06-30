@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { AnalyzeModeCard } from "@/components/analyze/analyze-mode-card";
 import { analyzerModes } from "@/lib/analyze/analyzer-mode";
 
 export default function AnalyzePage() {
@@ -38,49 +37,9 @@ export default function AnalyzePage() {
         </section>
 
         <section className="mt-10 grid gap-5 md:grid-cols-3">
-          {analyzerModes.map((mode) => {
-            const Icon = mode.icon;
-            const isActive = mode.status === "Active";
-
-            const card = (
-              <div className="group flex h-full flex-col justify-between rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/76 p-5 shadow-[var(--shadow-soft)] transition hover:-translate-y-1 hover:bg-[var(--surface)]">
-                <div>
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-                      <Icon className="h-5 w-5" />
-                    </div>
-
-                    <span className="rounded-full border border-[var(--border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground)]/45">
-                      {mode.status}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-6 text-xl font-semibold tracking-[-0.04em] text-[var(--foreground)]">
-                    {mode.title}
-                  </h2>
-
-                  <p className="mt-3 text-sm leading-7 text-[var(--foreground)]/56">
-                    {mode.description}
-                  </p>
-                </div>
-
-                <div className="mt-8 flex items-center justify-between text-sm font-medium text-[var(--primary)]">
-                  <span>{isActive ? "Open analyzer" : "Coming later"}</span>
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </div>
-              </div>
-            );
-
-            return isActive ? (
-              <Link key={mode.title} href={mode.href} className="block">
-                {card}
-              </Link>
-            ) : (
-              <div key={mode.title} className="cursor-not-allowed opacity-72">
-                {card}
-              </div>
-            );
-          })}
+          {analyzerModes.map((mode) => (
+            <AnalyzeModeCard key={mode.title} mode={mode} />
+          ))}
         </section>
       </div>
     </main>

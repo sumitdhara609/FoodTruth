@@ -1,68 +1,49 @@
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import type { AnalyzerMode } from "@/lib/analyze/analyzer-mode";
 
 type AnalyzeModeCardProps = {
-  title: string;
-  description: string;
-  status: string;
-  icon: ReactNode;
-  featured?: boolean;
+  mode: AnalyzerMode;
 };
 
-export function AnalyzeModeCard({
-  title,
-  description,
-  status,
-  icon,
-  featured = false,
-}: AnalyzeModeCardProps) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        "group w-full rounded-[1.75rem] border p-5 text-left transition duration-300 hover:-translate-y-1",
-        featured
-          ? "border-[var(--primary)]/25 bg-[var(--primary)] text-[var(--background)] shadow-[0_24px_70px_rgba(22,63,47,0.22)]"
-          : "border-[var(--border)] bg-[var(--surface)]/78 text-[var(--foreground)] hover:bg-[var(--surface-muted)]"
-      )}
-    >
-      <div
-        className={cn(
-          "grid h-12 w-12 place-items-center rounded-2xl transition group-hover:scale-105",
-          featured
-            ? "bg-[var(--background)]/12 text-[var(--background)]"
-            : "bg-[var(--accent-muted)] text-[var(--primary)]"
-        )}
-      >
-        {icon}
-      </div>
+export function AnalyzeModeCard({ mode }: AnalyzeModeCardProps) {
+  const Icon = mode.icon;
+  const isActive = mode.status === "Active";
 
-      <div className="mt-8 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-lg font-semibold tracking-[-0.04em]">{title}</p>
-          <p
-            className={cn(
-              "mt-2 max-w-sm text-sm leading-6",
-              featured
-                ? "text-[var(--background)]/72"
-                : "text-[var(--foreground)]/58"
-            )}
-          >
-            {description}
-          </p>
+  const card = (
+    <div className="group flex h-full flex-col justify-between rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/76 p-5 shadow-[var(--shadow-soft)] transition hover:-translate-y-1 hover:bg-[var(--surface)]">
+      <div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
+            <Icon className="h-5 w-5" />
+          </div>
+
+          <span className="rounded-full border border-[var(--border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground)]/45">
+            {mode.status}
+          </span>
         </div>
 
-        <span
-          className={cn(
-            "shrink-0 rounded-full px-3 py-1 text-[10px] font-medium",
-            featured
-              ? "bg-[var(--background)]/12 text-[var(--background)]/78"
-              : "bg-[var(--accent-muted)] text-[var(--primary)]"
-          )}
-        >
-          {status}
-        </span>
+        <h2 className="mt-6 text-xl font-semibold tracking-[-0.04em] text-[var(--foreground)]">
+          {mode.title}
+        </h2>
+
+        <p className="mt-3 text-sm leading-7 text-[var(--foreground)]/56">
+          {mode.description}
+        </p>
       </div>
-    </button>
+
+      <div className="mt-8 flex items-center justify-between text-sm font-medium text-[var(--primary)]">
+        <span>{isActive ? "Open analyzer" : "Coming later"}</span>
+        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+      </div>
+    </div>
+  );
+
+  return isActive ? (
+    <Link href={mode.href} className="block">
+      {card}
+    </Link>
+  ) : (
+    <div className="cursor-not-allowed opacity-72">{card}</div>
   );
 }
