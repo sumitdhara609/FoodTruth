@@ -2,33 +2,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { analyzerModes } from "@/lib/analyze/analyzer-mode";
 
-const analyzerModes = [
-  {
-    title: "Manual Entry",
-    description:
-      "Enter label values, ingredients, and claims to generate a structured FoodTruth report.",
-    href: "/analyze/manual",
-    status: "Active",
-    icon: FileText,
-  },
-  {
-    title: "Upload Label",
-    description:
-      "Upload a packaged-food label image and prepare it for structured analysis.",
-    href: "#",
-    status: "Planned",
-    icon: ImagePlus,
-  },
-  {
-    title: "Instant Scan",
-    description:
-      "Use a camera-led flow for quick label capture while shopping or comparing products.",
-    href: "#",
-    status: "Planned",
-    icon: ScanLine,
-  },
-];
-
 export default function AnalyzePage() {
   return (
     <main className="min-h-screen bg-[var(--background)] px-5 py-6 text-[var(--foreground)] sm:px-8 lg:px-12">
