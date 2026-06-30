@@ -1,32 +1,16 @@
 import { Camera, ScanLine, ShieldCheck } from "lucide-react";
+import { InputPlaceholderCard } from "@/components/analyze/input-placeholder-card";
 
 export function ScanInputPlaceholder() {
   return (
     <section className="mt-10 rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/76 p-5 shadow-[var(--shadow-soft)]">
       <div className="grid gap-6 lg:grid-cols-[0.7fr_0.45fr] lg:items-center">
-        <div className="rounded-[1.75rem] border border-dashed border-[var(--border)] bg-[var(--background)]/55 p-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-            <Camera className="h-6 w-6" />
-          </div>
-
-          <h2 className="mt-5 text-2xl font-semibold tracking-[-0.05em] text-[var(--foreground)]">
-            Camera scan will appear here.
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--foreground)]/52">
-            Future scan mode will help capture label values quickly, then turn
-            them into a reviewable draft before any FoodTruth report is
-            generated.
-          </p>
-
-          <button
-            type="button"
-            disabled
-            className="mt-6 cursor-not-allowed rounded-full border border-[var(--border)] bg-[var(--surface)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]/35"
-          >
-            Scan coming later
-          </button>
-        </div>
+        <InputPlaceholderCard
+          icon={Camera}
+          title="Camera scan will appear here."
+          description="Future scan mode will help capture label values quickly, then turn them into a reviewable draft before any FoodTruth report is generated."
+          buttonLabel="Scan coming later"
+        />
 
         <div className="space-y-4">
           <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--background)]/55 p-5">
