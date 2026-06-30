@@ -1,4 +1,5 @@
 import { History, ShieldCheck, Trophy } from "lucide-react";
+import { AccountSignalCard } from "@/components/account/account-signal-card";
 import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
 import { SavedReportHistoryPreview } from "@/components/account/saved-report-history-preview";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
@@ -59,28 +60,14 @@ export default function AccountPage() {
       </section>
 
       <section className="mt-10 grid gap-5 md:grid-cols-3">
-        {accountSignals.map((signal) => {
-          const Icon = signal.icon;
-
-          return (
-            <div
-              key={signal.title}
-              className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/76 p-5 shadow-[var(--shadow-soft)]"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-muted)] text-[var(--primary)]">
-                <Icon className="h-5 w-5" />
-              </div>
-
-              <h2 className="mt-6 text-xl font-semibold tracking-[-0.04em] text-[var(--foreground)]">
-                {signal.title}
-              </h2>
-
-              <p className="mt-3 text-sm leading-7 text-[var(--foreground)]/56">
-                {signal.description}
-              </p>
-            </div>
-          );
-        })}
+        {accountSignals.map((signal) => (
+          <AccountSignalCard
+            key={signal.title}
+            title={signal.title}
+            description={signal.description}
+            icon={signal.icon}
+          />
+        ))}
       </section>
 
       <BadgeProgressPreview savedReportCount={25} />
