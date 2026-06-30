@@ -1,31 +1,10 @@
-import { History, ShieldCheck, Trophy } from "lucide-react";
 import { AccountPageHeader } from "@/components/account/account-page-header";
 import { AccountSignalCard } from "@/components/account/account-signal-card";
 import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
 import { SavedReportHistoryPreview } from "@/components/account/saved-report-history-preview";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
+import { accountSignals } from "@/lib/account/account-signal";
 import { sampleSavedReports } from "@/lib/account/sample-saved-reports";
-
-const accountSignals = [
-  {
-    title: "Saved label records",
-    description:
-      "A private archive of reviewed label data will appear here after sign-in is connected.",
-    icon: History,
-  },
-  {
-    title: "Badge progress",
-    description:
-      "Conscious label-checking milestones will be calculated from saved reports.",
-    icon: Trophy,
-  },
-  {
-    title: "Data-light records",
-    description:
-      "Records will store reviewed label data only, not uploaded image files or image metadata.",
-    icon: ShieldCheck,
-  },
-];
 
 export default function AccountPage() {
   return (
