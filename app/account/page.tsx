@@ -6,8 +6,16 @@ import { SavedReportHistoryPreview } from "@/components/account/saved-report-his
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
 import { accountSignals } from "@/lib/account/account-signal";
 import { sampleSavedReports } from "@/lib/account/sample-saved-reports";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/supabase/auth";
 
-export default function AccountPage() {
+export default async function AccountPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/auth/sign-in?message=Please sign in to view your account.");
+  }
+  
   return (
     <AnalyzerPageShell>
       <AccountPageHeader />
