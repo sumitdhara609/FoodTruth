@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, type LucideIcon } from "lucide-react";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
@@ -11,6 +12,7 @@ type AnalyzerPlaceholderPageProps = {
   placeholderTitle: string;
   placeholderDescription: string;
   icon: LucideIcon;
+  children?: ReactNode;
 };
 
 export function AnalyzerPlaceholderPage({
@@ -22,6 +24,7 @@ export function AnalyzerPlaceholderPage({
   placeholderTitle,
   placeholderDescription,
   icon: Icon,
+  children,
 }: AnalyzerPlaceholderPageProps) {
   return (
     <AnalyzerPageShell>
@@ -72,6 +75,8 @@ export function AnalyzerPlaceholderPage({
           {placeholderDescription}
         </p>
       </section>
+
+      {children}
     </AnalyzerPageShell>
   );
 }
