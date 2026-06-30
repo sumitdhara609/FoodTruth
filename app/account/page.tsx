@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { AccountDashboardPlaceholder } from "@/components/account/account-dashboard-placeholder";
 import { AccountPageHeader } from "@/components/account/account-page-header";
 import { AccountSignalCard } from "@/components/account/account-signal-card";
@@ -5,8 +6,7 @@ import { BadgeProgressPreview } from "@/components/account/badge-progress-previe
 import { SavedReportHistoryPreview } from "@/components/account/saved-report-history-preview";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
 import { accountSignals } from "@/lib/account/account-signal";
-import { sampleSavedReports } from "@/lib/account/sample-saved-reports";
-import { redirect } from "next/navigation";
+import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
 import { getCurrentUser } from "@/lib/supabase/auth";
 
 export default async function AccountPage() {
@@ -15,10 +15,21 @@ export default async function AccountPage() {
   if (!user) {
     redirect("/auth/sign-in?message=Please sign in to view your account.");
   }
-  
+
+  const savedReportsResult = await getSavedReportsForUser(user.id);
+  const savedReports = savedReportsResult.reports;
+
   return (
     <AnalyzerPageShell>
       <AccountPageHeader />
+
+      {!savedReportsResult.success && (
+        <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 px-5 py-4">
+          <p className="text-sm leading-6 text-[var(--foreground)]/62">
+            {savedReportsResult.message}
+          </p>
+        </div>
+      )}
 
       <section className="mt-10 grid gap-5 md:grid-cols-3">
         {accountSignals.map((signal) => (
@@ -31,9 +42,9 @@ export default async function AccountPage() {
         ))}
       </section>
 
-      <BadgeProgressPreview savedReportCount={25} />
+      <BadgeProgressPreview savedReportCount={savedReports.length} />
 
-      <SavedReportHistoryPreview reports={sampleSavedReports} />
+      <SavedReportHistoryPreview reports={savedReports} />
 
       <AccountDashboardPlaceholder />
     </AnalyzerPageShell>
