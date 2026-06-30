@@ -1,6 +1,7 @@
 "use client";
 
-import { Copy, GitCompareArrows, Save } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, GitCompareArrows, Save } from "lucide-react";
 import type { FoodTruthReport } from "@/lib/engine/types";
 
 type ReportActionsProps = {
@@ -8,6 +9,8 @@ type ReportActionsProps = {
 };
 
 export function ReportActions({ report }: ReportActionsProps) {
+  const [copied, setCopied] = useState(false);
+
   const handleCopySummary = async () => {
     const summary = [
       `FoodTruth Report: ${report.productName}`,
@@ -18,6 +21,12 @@ export function ReportActions({ report }: ReportActionsProps) {
     ].join("\n");
 
     await navigator.clipboard.writeText(summary);
+
+    setCopied(true);
+
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 1800);
   };
 
   return (
@@ -27,8 +36,8 @@ export function ReportActions({ report }: ReportActionsProps) {
         onClick={handleCopySummary}
         className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--primary)] px-4 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
       >
-        <Copy className="h-4 w-4" />
-        Copy summary
+        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        {copied ? "Copied" : "Copy summary"}
       </button>
 
       <button
