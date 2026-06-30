@@ -36,3 +36,15 @@ export const analyzerModes: AnalyzerMode[] = [
     icon: ScanLine,
   },
 ];
+
+export const isAnalyzerModeActive = (mode: AnalyzerMode) => {
+  return mode.status === "Active";
+};
+
+export const getActiveAnalyzerModes = () => {
+  return analyzerModes.filter(isAnalyzerModeActive);
+};
+
+export const getPlannedAnalyzerModes = () => {
+  return analyzerModes.filter((mode) => mode.status === "Planned");
+};

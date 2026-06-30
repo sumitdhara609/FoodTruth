@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { analyzerModes } from "@/lib/analyze/analyzer-mode";
+import {
+  analyzerModes,
+  getActiveAnalyzerModes,
+  getPlannedAnalyzerModes,
+  isAnalyzerModeActive,
+} from "@/lib/analyze/analyzer-mode";
 
 describe("analyzer modes", () => {
   it("keeps manual entry as the only active analyzer mode", () => {
-    const activeModes = analyzerModes.filter((mode) => mode.status === "Active");
+    const activeModes = getActiveAnalyzerModes();
 
     expect(activeModes).toHaveLength(1);
     expect(activeModes[0].title).toBe("Manual Entry");
@@ -11,18 +16,27 @@ describe("analyzer modes", () => {
   });
 
   it("keeps upload and scan as planned placeholder routes", () => {
-    const uploadMode = analyzerModes.find(
-      (mode) => mode.title === "Upload Label"
-    );
-    const scanMode = analyzerModes.find(
-      (mode) => mode.title === "Instant Scan"
-    );
+    const plannedModes = getPlannedAnalyzerModes();
 
-    expect(uploadMode?.status).toBe("Planned");
-    expect(uploadMode?.href).toBe("/analyze/upload");
+    expect(plannedModes.map((mode) => mode.title)).toEqual([
+      "Upload Label",
+      "Instant Scan",
+    ]);
+    expect(plannedModes.map((mode) => mode.href)).toEqual([
+      "/analyze/upload",
+      "/analyze/scan",
+    ]);
+  });
 
-    expect(scanMode?.status).toBe("Planned");
-    expect(scanMode?.href).toBe("/analyze/scan");
+  it("identifies active analyzer modes safely", () => {
+    const manualMode = analyzerModes.find((mode) => mode.title === "Manual Entry");
+    const uploadMode = analyzerModes.find((mode) => mode.title === "Upload Label");
+
+    expect(manualMode).toBeDefined();
+    expect(uploadMode).toBeDefined();
+
+    expect(isAnalyzerModeActive(manualMode!)).toBe(true);
+    expect(isAnalyzerModeActive(uploadMode!)).toBe(false);
   });
 
   it("keeps every analyzer mode renderable as a card", () => {
