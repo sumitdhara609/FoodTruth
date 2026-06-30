@@ -4,6 +4,7 @@ import type {
 } from "@/lib/engine/types";
 import { ReportCard } from "@/components/report/report-card";
 import { ReportDisclaimer } from "@/components/report/report-disclaimer";
+import { ReportActions } from "@/components/report/report-actions";
 
 type FoodTruthReportPanelProps = {
   result: ValidatedFoodTruthResult | null;
@@ -124,6 +125,10 @@ function ReportContent({ report }: { report: FoodTruthReport }) {
           {report.summary}
         </p>
       </div>
+
+<div className="mt-5">
+  <ReportActions report={report} />
+</div>
 
       <div className="mt-5 space-y-3">
         <ReportCard
