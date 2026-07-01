@@ -160,17 +160,17 @@ export function UploadWorkspace() {
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/analyze/manual"
-            className="inline-flex justify-center rounded-full bg-[var(--primary)] px-5 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
-          >
-            Continue with manual review
-          </Link>
+  href="/analyze/upload/review"
+  className="inline-flex justify-center rounded-full bg-[var(--primary)] px-5 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
+>
+  Create review draft
+</Link>
 
           <Link
             href="/account"
             className="inline-flex justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-5 py-3 text-xs font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
           >
-            View saved reports
+            Open account archive
           </Link>
         </div>
       </div>
