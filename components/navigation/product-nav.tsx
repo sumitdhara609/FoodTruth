@@ -4,7 +4,15 @@ import {
   authNavigationLinks,
 } from "@/lib/navigation/app-navigation";
 
-export function ProductNav() {
+type ProductNavProps = {
+  isSignedIn: boolean;
+};
+
+export function ProductNav({ isSignedIn }: ProductNavProps) {
+  const visibleAppLinks = isSignedIn
+    ? appNavigationLinks
+    : appNavigationLinks.filter((link) => link.href !== "/account");
+
   return (
     <nav className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <Link href="/" className="group inline-flex items-center gap-3">
@@ -23,7 +31,7 @@ export function ProductNav() {
       </Link>
 
       <div className="flex flex-wrap gap-2">
-        {appNavigationLinks.map((link) => (
+        {visibleAppLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -33,15 +41,16 @@ export function ProductNav() {
           </Link>
         ))}
 
-        {authNavigationLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="rounded-full bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
-          >
-            {link.label}
-          </Link>
-        ))}
+        {!isSignedIn &&
+          authNavigationLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-full bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
+            >
+              {link.label}
+            </Link>
+          ))}
       </div>
     </nav>
   );
