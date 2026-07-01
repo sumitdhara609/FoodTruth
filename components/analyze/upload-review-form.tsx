@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { saveManualReportAction } from "@/app/analyze/manual/actions";
+import { saveUploadReviewReportAction } from "@/app/analyze/upload/review/actions";
 import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-summary";
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
@@ -97,7 +97,7 @@ export function UploadReviewForm() {
 
     startSavingTransition(() => {
       void (async () => {
-        const saveResult = await saveManualReportAction(formState);
+        const saveResult = await saveUploadReviewReportAction(formState);
         setSaveMessage(saveResult.message);
       })();
     });
