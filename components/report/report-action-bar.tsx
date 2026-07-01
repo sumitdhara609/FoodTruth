@@ -8,13 +8,19 @@ import {
 
 type ReportActionBarProps = {
   copied: boolean;
+  isSaving: boolean;
+  saveMessage: string | null;
   onCopy: () => void;
+  onSave: () => void;
   onReset: () => void;
 };
 
 export function ReportActionBar({
   copied,
+  isSaving,
+  saveMessage,
   onCopy,
+  onSave,
   onReset,
 }: ReportActionBarProps) {
   const readyActions = getReadyReportActions();
@@ -22,16 +28,22 @@ export function ReportActionBar({
 
   return (
     <div className="rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)]/72 p-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.26em] text-[var(--primary)]/70">
             Report Actions
           </p>
 
           <p className="mt-2 text-sm leading-6 text-[var(--foreground)]/52">
-            Copy, reset, and prepare this report for future account-based
-            saving.
+            Copy, save, reset, or prepare this report for future account-based
+            workflows.
           </p>
+
+          {saveMessage && (
+            <p className="mt-3 rounded-2xl border border-[var(--border)] bg-[var(--background)]/70 px-3 py-2 text-xs leading-5 text-[var(--foreground)]/62">
+              {saveMessage}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -40,6 +52,18 @@ export function ReportActionBar({
               return (
                 <ReportActionButton key={action.key} onClick={onCopy}>
                   {copied ? "Copied" : action.label}
+                </ReportActionButton>
+              );
+            }
+
+            if (action.key === "save") {
+              return (
+                <ReportActionButton
+                  key={action.key}
+                  disabled={isSaving}
+                  onClick={onSave}
+                >
+                  {isSaving ? "Saving..." : action.label}
                 </ReportActionButton>
               );
             }

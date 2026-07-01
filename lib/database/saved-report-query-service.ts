@@ -76,10 +76,10 @@ export const getSavedReportsForUser = async (
     };
   }
 
+  const rows = (data ?? []) as unknown as SavedLabelReportRow[];
+
   return {
     success: true,
-    reports: ((data ?? []) as SavedLabelReportRow[]).map(
-      mapSavedReportRowToAccountReport
-    ),
+    reports: rows.map(mapSavedReportRowToAccountReport),
   };
 };

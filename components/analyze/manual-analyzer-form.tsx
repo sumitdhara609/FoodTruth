@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { saveManualReportAction } from "@/app/analyze/manual/actions";
 import { AnalyzerStatusStrip } from "@/components/analyze/analyzer-status-strip";
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
+import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -17,7 +19,6 @@ import {
 import { sampleManualLabel } from "@/lib/analyze/sample-manual-label";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
 import type { ValidatedFoodTruthResult } from "@/lib/engine/types";
-import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 
 const initialFormState: ManualAnalyzerState = {
   productName: "",
@@ -40,6 +41,8 @@ export function ManualAnalyzerForm() {
   const [formState, setFormState] =
     useState<ManualAnalyzerState>(initialFormState);
   const [result, setResult] = useState<ValidatedFoodTruthResult | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = useMemo(() => {
     if (!result || result.success) {
@@ -58,6 +61,8 @@ export function ManualAnalyzerForm() {
       ...currentState,
       [key]: value,
     }));
+
+    setSaveMessage(null);
   };
 
   const handleGenerateReport = () => {
@@ -66,16 +71,35 @@ export function ManualAnalyzerForm() {
     );
 
     setResult(nextResult);
+    setSaveMessage(null);
+  };
+
+  const handleSaveReport = () => {
+    if (!result?.success) {
+      setSaveMessage("Generate a valid report before saving.");
+      return;
+    }
+
+    setSaveMessage(null);
+
+    startSavingTransition(() => {
+      void (async () => {
+        const saveResult = await saveManualReportAction(formState);
+        setSaveMessage(saveResult.message);
+      })();
+    });
   };
 
   const handleUseSample = () => {
     setFormState(sampleManualLabel);
     setResult(null);
+    setSaveMessage(null);
   };
 
   const handleClearForm = () => {
     setFormState(initialFormState);
     setResult(null);
+    setSaveMessage(null);
   };
 
   const renderNumericField = (field: ManualNumericField) => {
@@ -228,7 +252,13 @@ export function ManualAnalyzerForm() {
         </div>
       </div>
 
-      <FoodTruthReportPanel result={result} onReset={handleClearForm} />
+      <FoodTruthReportPanel
+        result={result}
+        isSaving={isSaving}
+        saveMessage={saveMessage}
+        onSave={handleSaveReport}
+        onReset={handleClearForm}
+      />
     </div>
   );
 }
