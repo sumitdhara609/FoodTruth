@@ -3,8 +3,9 @@ import { AccountReportArchive } from "@/components/account/account-report-archiv
 import { AccountReportStats } from "@/components/account/account-report-stats";
 import { AccountSessionCard } from "@/components/account/account-session-card";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
-import { getAccountReportStats } from "@/lib/account/account-report-stats";
-import { getFirstName } from "@/lib/auth/name-validation";
+import { getAccountFirstName } from "@/lib/account/account-identity";
+import { calculateAccountReportStats } from "@/lib/account/account-report-stats";
+import { getProfileForUser } from "@/lib/database/profile-query-service";
 import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
 import { getCurrentUser } from "@/lib/supabase/auth";
 
@@ -15,15 +16,15 @@ export default async function AccountPage() {
     redirect("/auth/sign-in?message=Please sign in to view your account.");
   }
 
-  const fullName =
-    typeof user.user_metadata?.full_name === "string"
-      ? user.user_metadata.full_name
-      : null;
+  const [profileResult, savedReportsResult] = await Promise.all([
+    getProfileForUser(user.id),
+    getSavedReportsForUser(user.id),
+  ]);
 
-  const firstName = getFirstName(fullName);
-  const savedReportsResult = await getSavedReportsForUser(user.id);
+  const profile = profileResult.success ? profileResult.profile : null;
+  const firstName = getAccountFirstName({ profile, user });
   const reports = savedReportsResult.success ? savedReportsResult.reports : [];
-  const stats = getAccountReportStats(reports);
+  const stats = calculateAccountReportStats(reports);
 
   return (
     <AnalyzerPageShell>
@@ -46,6 +47,12 @@ export default async function AccountPage() {
         <AccountReportStats stats={stats} />
         <AccountSessionCard email={user.email} />
       </div>
+
+      {!profileResult.success && (
+        <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+          Profile could not be loaded: {profileResult.message}
+        </div>
+      )}
 
       {!savedReportsResult.success && (
         <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
