@@ -8,6 +8,8 @@ import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
+import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
+import { runMockUploadExtraction } from "@/lib/analyze/extraction-provider";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -17,10 +19,7 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
-import {
-  realLabelUploadExtractionDraft,
-  realLabelUploadReviewSample,
-} from "@/lib/analyze/upload-review-sample";
+import { realLabelUploadExtractionDraft } from "@/lib/analyze/upload-review-sample";
 import {
   uploadReviewFormCopy,
   uploadReviewValueModeOptions,
@@ -54,6 +53,9 @@ export function UploadReviewForm() {
     useState<UploadReviewValueMode>("per-serving");
   const [result, setResult] = useState<ValidatedFoodTruthResult | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [extractionMessage, setExtractionMessage] = useState<string | null>(
+    null
+  );
   const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = new Map(
@@ -69,6 +71,7 @@ export function UploadReviewForm() {
     }));
 
     setSaveMessage(null);
+    setExtractionMessage(null);
   };
 
   const getFieldError = (field: keyof ManualAnalyzerState) => {
@@ -105,13 +108,28 @@ export function UploadReviewForm() {
     setValueMode("per-serving");
     setResult(null);
     setSaveMessage(null);
+    setExtractionMessage(null);
   };
 
-  const handleUseRealLabelSample = () => {
-    setFormState(realLabelUploadReviewSample);
-    setValueMode("per-serving");
-    setResult(null);
-    setSaveMessage(null);
+  const handleRunMockExtraction = () => {
+    setExtractionMessage(null);
+
+    startSavingTransition(() => {
+      void (async () => {
+        const extractionResult = await runMockUploadExtraction();
+
+        if (!extractionResult.success) {
+          setExtractionMessage(extractionResult.message);
+          return;
+        }
+
+        setFormState(mapExtractionDraftToManualState(extractionResult.draft));
+        setValueMode("per-serving");
+        setResult(null);
+        setSaveMessage(null);
+        setExtractionMessage(extractionResult.message);
+      })();
+    });
   };
 
   const renderNumericField = (field: ManualNumericField) => {
@@ -198,6 +216,12 @@ export function UploadReviewForm() {
         <div className="mt-4">
           <ExtractionDraftSummary draft={realLabelUploadExtractionDraft} />
         </div>
+
+        {extractionMessage && (
+          <div className="mt-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+            {extractionMessage}
+          </div>
+        )}
 
         <div className="mt-8 space-y-5">
           <FormSection
@@ -305,10 +329,10 @@ export function UploadReviewForm() {
 
           <button
             type="button"
-            onClick={handleUseRealLabelSample}
+            onClick={handleRunMockExtraction}
             className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
           >
-            Use real label sample
+            Run mock extraction
           </button>
 
           <button
