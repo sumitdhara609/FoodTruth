@@ -6,6 +6,7 @@ import {
   buildAuthCallbackUrl,
   defaultAuthRedirectPath,
 } from "@/lib/auth/auth-redirect";
+import { normalizeDisplayName } from "@/lib/auth/name-validation";
 import { validateAuthCredentials } from "@/lib/auth/auth-validation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -34,6 +35,12 @@ const getRequestOrigin = async () => {
 };
 
 export async function signUpAction(formData: FormData) {
+  const name = normalizeDisplayName(getFormValue(formData, "name"));
+
+  if (!name) {
+    redirect(buildAuthRedirect("/auth/sign-up", "Name is required."));
+  }
+
   const validation = validateAuthCredentials(
     getFormValue(formData, "email"),
     getFormValue(formData, "password")
@@ -50,6 +57,9 @@ export async function signUpAction(formData: FormData) {
     email: validation.email,
     password: validation.password,
     options: {
+      data: {
+        full_name: name,
+      },
       emailRedirectTo: buildAuthCallbackUrl({
         origin,
         nextPath: defaultAuthRedirectPath,

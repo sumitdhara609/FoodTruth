@@ -1,8 +1,9 @@
-import { AuthCard } from "@/components/auth/auth-card";
+import Link from "next/link";
 import { signInAction } from "@/app/auth/actions";
+import { AuthCard } from "@/components/auth/auth-card";
 
 type SignInPageProps = {
-  searchParams?: Promise<{
+  searchParams: Promise<{
     message?: string;
   }>;
 };
@@ -13,14 +14,22 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   return (
     <AuthCard
       eyebrow="Sign In"
-      title="Return to your FoodTruth account."
-      description="Sign in to continue building your saved label reports, account signals, and future badge progress."
+      title="Return to your FoodTruth workspace."
+      description="Sign in to save reports, review your label archive, and continue building your FoodTruth account history."
       action={signInAction}
-      buttonLabel="Sign in"
-      footerText="New to FoodTruth?"
-      footerHref="/auth/sign-up"
-      footerLabel="Create account"
-      message={params?.message}
+      submitLabel="Sign in"
+      message={params.message}
+      footer={
+        <>
+          New to FoodTruth?{" "}
+          <Link
+            href="/auth/sign-up"
+            className="font-semibold text-[var(--primary)]"
+          >
+            Create account
+          </Link>
+        </>
+      }
     />
   );
 }

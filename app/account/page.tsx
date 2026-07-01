@@ -1,14 +1,12 @@
 import { redirect } from "next/navigation";
-import { AccountDashboardPlaceholder } from "@/components/account/account-dashboard-placeholder";
-import { AccountPageHeader } from "@/components/account/account-page-header";
-import { AccountSignalCard } from "@/components/account/account-signal-card";
-import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
 import { AccountReportArchive } from "@/components/account/account-report-archive";
+import { AccountReportStats } from "@/components/account/account-report-stats";
+import { AccountSessionCard } from "@/components/account/account-session-card";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
-import { accountSignals } from "@/lib/account/account-signal";
+import { getAccountReportStats } from "@/lib/account/account-report-stats";
+import { getFirstName } from "@/lib/auth/name-validation";
 import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
 import { getCurrentUser } from "@/lib/supabase/auth";
-import { AccountSessionCard } from "@/components/account/account-session-card";
 
 export default async function AccountPage() {
   const user = await getCurrentUser();
@@ -17,39 +15,45 @@ export default async function AccountPage() {
     redirect("/auth/sign-in?message=Please sign in to view your account.");
   }
 
+  const fullName =
+    typeof user.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : null;
+
+  const firstName = getFirstName(fullName);
   const savedReportsResult = await getSavedReportsForUser(user.id);
-  const savedReports = savedReportsResult.reports;
+  const reports = savedReportsResult.success ? savedReportsResult.reports : [];
+  const stats = getAccountReportStats(reports);
 
   return (
     <AnalyzerPageShell>
-      <AccountPageHeader />
+      <section>
+        <p className="text-xs uppercase tracking-[0.32em] text-[var(--primary)]/70">
+          Account
+        </p>
 
-      <AccountSessionCard email={user.email} />
+        <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.07em] text-[var(--foreground)] sm:text-5xl">
+          Welcome back, {firstName}.
+        </h1>
+
+        <p className="mt-5 max-w-2xl text-sm leading-7 text-[var(--foreground)]/58 sm:text-base sm:leading-8">
+          Your saved FoodTruth reports, account session, and label history live
+          here.
+        </p>
+      </section>
+
+      <div className="mt-10 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
+        <AccountReportStats stats={stats} />
+        <AccountSessionCard email={user.email} />
+      </div>
 
       {!savedReportsResult.success && (
-        <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 px-5 py-4">
-          <p className="text-sm leading-6 text-[var(--foreground)]/62">
-            {savedReportsResult.message}
-          </p>
+        <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+          Saved reports could not be loaded: {savedReportsResult.message}
         </div>
       )}
 
-      <section className="mt-10 grid gap-5 md:grid-cols-3">
-        {accountSignals.map((signal) => (
-          <AccountSignalCard
-            key={signal.title}
-            title={signal.title}
-            description={signal.description}
-            icon={signal.icon}
-          />
-        ))}
-      </section>
-
-      <BadgeProgressPreview savedReportCount={savedReports.length} />
-
-      <AccountReportArchive reports={savedReports} />
-
-      <AccountDashboardPlaceholder />
+      <AccountReportArchive reports={reports} />
     </AnalyzerPageShell>
   );
 }

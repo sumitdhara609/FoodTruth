@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { Camera, Keyboard, Upload } from "lucide-react";
-import { HeroActions } from "@/components/landing/hero-actions";
 import { InputModeCard } from "@/components/landing/input-mode-card";
 import { ScanPreview } from "@/components/landing/scan-preview";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -8,20 +8,17 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 const inputModes = [
   {
     title: "Scan",
-    description:
-      "A mobile-first scan flow designed for quick label checks during shopping.",
+    description: "Capture a label and prepare it for structured review.",
     icon: <Camera size={18} />,
   },
   {
     title: "Upload",
-    description:
-      "Upload a packaged food label image and turn it into a structured report.",
+    description: "Upload a label image and turn it into readable signals.",
     icon: <Upload size={18} />,
   },
   {
     title: "Manual",
-    description:
-      "Enter nutrition values, ingredients, and front-label claims directly.",
+    description: "Enter label values, ingredients, and claims directly.",
     icon: <Keyboard size={18} />,
   },
 ];
@@ -33,20 +30,35 @@ export default function Home() {
         <div className="pointer-events-none absolute -left-32 top-8 h-72 w-72 rounded-full bg-[var(--accent)]/18 blur-3xl" />
         <div className="pointer-events-none absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-[var(--primary)]/10 blur-3xl" />
 
-        <nav className="relative z-10 flex items-center justify-between gap-6">
-          <div>
-            <p className="text-sm uppercase tracking-[0.38em] text-[var(--primary)]/75">
+        <nav className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <Link href="/" className="group w-fit">
+            <p className="text-sm uppercase tracking-[0.38em] text-[var(--primary)]/75 transition group-hover:text-[var(--primary)]">
               FoodTruth
             </p>
             <p className="mt-1 text-xs text-[var(--foreground)]/50">
               Packaged Food Label Intelligence
             </p>
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-4 py-2 text-xs text-[var(--foreground)]/60 sm:block">
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <span className="hidden rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-4 py-2 text-xs text-[var(--foreground)]/60 sm:inline-flex">
               Label Intelligence
-            </div>
+            </span>
+
+            <Link
+              href="/analyze"
+              className="rounded-full border border-[var(--border)] bg-[var(--surface)]/70 px-4 py-2 text-xs font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            >
+              Analyze
+            </Link>
+
+            <Link
+              href="/auth/sign-in"
+              className="rounded-full bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] shadow-[0_14px_35px_rgba(22,63,47,0.16)] transition hover:opacity-90"
+            >
+              Account
+            </Link>
+
             <ThemeToggle />
           </div>
         </nav>
@@ -64,10 +76,24 @@ export default function Home() {
             <p className="mt-7 max-w-2xl text-base leading-8 text-[var(--foreground)]/68 sm:text-lg">
               FoodTruth helps decode packaged food labels through nutrition
               load, ingredient clarity, serving-size reality, and marketing
-              claim awareness — designed for fast decisions while shopping.
+              claim awareness — designed for clear decisions while shopping.
             </p>
 
-            <HeroActions />
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/analyze"
+                className="inline-flex justify-center rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
+              >
+                Start analyzing
+              </Link>
+
+              <Link
+                href="/auth/sign-in"
+                className="inline-flex justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/70 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              >
+                Open account
+              </Link>
+            </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {inputModes.map((mode) => (
@@ -81,9 +107,8 @@ export default function Home() {
             </div>
 
             <p className="mt-6 max-w-xl text-xs leading-6 text-[var(--foreground)]/45">
-              Future signed-in experiences may store scan history and support
-              optional health-context preferences, while keeping guidance
-              educational and responsible.
+              Signed-in experiences can save reviewed label reports while
+              keeping FoodTruth educational, careful, and privacy-respecting.
             </p>
           </div>
 
