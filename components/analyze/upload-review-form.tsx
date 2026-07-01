@@ -9,7 +9,7 @@ import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
-import { runMockUploadExtraction } from "@/lib/analyze/extraction-provider";
+import { runActiveUploadExtraction } from "@/lib/analyze/extraction-provider-registry";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -111,12 +111,12 @@ export function UploadReviewForm() {
     setExtractionMessage(null);
   };
 
-  const handleRunMockExtraction = () => {
+  const handleRunExtraction = () => {
     setExtractionMessage(null);
 
     startSavingTransition(() => {
       void (async () => {
-        const extractionResult = await runMockUploadExtraction();
+        const extractionResult = await runActiveUploadExtraction();
 
         if (!extractionResult.success) {
           setExtractionMessage(extractionResult.message);
@@ -329,10 +329,10 @@ export function UploadReviewForm() {
 
           <button
             type="button"
-            onClick={handleRunMockExtraction}
+            onClick={handleRunExtraction}
             className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
           >
-            Run mock extraction
+            Run extraction draft
           </button>
 
           <button

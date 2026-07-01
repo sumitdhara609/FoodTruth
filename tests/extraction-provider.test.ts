@@ -18,6 +18,9 @@ describe("extraction provider", () => {
 
     if (result.success) {
       expect(result.status).toBe("Mock");
+      expect(result.message).toBe(
+        "Extraction draft created. Review the values before generating a report."
+      );
       expect(result.draft.calories.value).toBe("126.91");
       expect(result.draft.ingredients.confidence).toBe("Low");
     }

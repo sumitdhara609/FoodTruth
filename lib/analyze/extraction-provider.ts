@@ -23,12 +23,13 @@ export const extractionProviderConfig = {
   directImageToReport: false,
 } as const;
 
-export const runMockUploadExtraction = async (): Promise<ExtractionProviderResult> => {
-  return {
-    success: true,
-    status: "Mock",
-    draft: realLabelUploadExtractionDraft,
-    message:
-      "Mock extraction created a review draft. Confirm the values before generating a report.",
+export const runMockUploadExtraction =
+  async (): Promise<ExtractionProviderResult> => {
+    return {
+      success: true,
+      status: "Mock",
+      draft: realLabelUploadExtractionDraft,
+      message:
+        "Extraction draft created. Review the values before generating a report.",
+    };
   };
-};
