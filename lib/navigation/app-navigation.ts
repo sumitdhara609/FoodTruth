@@ -7,6 +7,10 @@ export const appNavigationLinks = [
     label: "Account",
     href: "/account",
   },
+  {
+    label: "System",
+    href: "/system",
+  },
 ] as const;
 
 export const authNavigationLinks = [

@@ -15,6 +15,10 @@ describe("app navigation", () => {
         label: "Account",
         href: "/account",
       },
+      {
+        label: "System",
+        href: "/system",
+      },
     ]);
   });
 
