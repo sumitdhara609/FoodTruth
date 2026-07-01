@@ -11,7 +11,7 @@ describe("extraction provider", () => {
     expect(extractionProviderConfig.directImageToReport).toBe(false);
   });
 
-  it("returns a mock extraction draft for upload review testing", async () => {
+  it("returns a draft extraction for upload review testing", async () => {
     const result = await runMockUploadExtraction();
 
     expect(result.success).toBe(true);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getActiveExtractionProvider,
+  getPlannedExtractionProviders,
   runActiveUploadExtraction,
 } from "@/lib/analyze/extraction-provider-registry";
 
@@ -9,7 +10,14 @@ describe("extraction provider registry", () => {
     const provider = getActiveExtractionProvider();
 
     expect(provider.key).toBe("mock");
-    expect(provider.label).toBe("Mock extraction");
+    expect(provider.label).toBe("Draft extraction");
+    expect(provider.status).toBe("Active");
+  });
+
+  it("keeps OCR extraction registered as planned", () => {
+    const plannedProviders = getPlannedExtractionProviders();
+
+    expect(plannedProviders.map((provider) => provider.key)).toContain("ocr");
   });
 
   it("runs the active extraction provider", async () => {
