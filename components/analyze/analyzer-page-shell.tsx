@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ProductNav } from "@/components/navigation/product-nav";
 
 type AnalyzerPageShellProps = {
   children: ReactNode;
@@ -6,8 +7,12 @@ type AnalyzerPageShellProps = {
 
 export function AnalyzerPageShell({ children }: AnalyzerPageShellProps) {
   return (
-    <main className="min-h-screen bg-[var(--background)] px-5 py-6 text-[var(--foreground)] sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl">{children}</div>
+    <main className="min-h-screen bg-[var(--background)] px-5 py-8 text-[var(--foreground)]">
+      <div className="mx-auto max-w-7xl">
+        <ProductNav />
+
+        {children}
+      </div>
     </main>
   );
 }
