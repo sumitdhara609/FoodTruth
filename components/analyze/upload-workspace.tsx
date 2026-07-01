@@ -163,7 +163,7 @@ export function UploadWorkspace() {
   href="/analyze/upload/review"
   className="inline-flex justify-center rounded-full bg-[var(--primary)] px-5 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
 >
-  Create review draft
+  Open upload review
 </Link>
 
           <Link

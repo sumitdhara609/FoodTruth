@@ -1,5 +1,5 @@
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
-import { UploadReviewDraftPanel } from "@/components/analyze/upload-review-draft-panel";
+import { UploadReviewForm } from "@/components/analyze/upload-review-form";
 
 export default function UploadReviewPage() {
   return (
@@ -10,16 +10,16 @@ export default function UploadReviewPage() {
         </p>
 
         <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.07em] text-[var(--foreground)] sm:text-5xl">
-          Review the label before creating a report.
+          Create a reviewed report from the uploaded label.
         </h1>
 
         <p className="mt-5 max-w-2xl text-sm leading-7 text-[var(--foreground)]/58 sm:text-base sm:leading-8">
-          The upload workflow uses the image as a temporary reference. FoodTruth
-          only saves reviewed label data and generated report signals.
+          Review visible values from the uploaded label image, generate a
+          FoodTruth report, and save only the reviewed label data.
         </p>
       </section>
 
-      <UploadReviewDraftPanel />
+      <UploadReviewForm />
     </AnalyzerPageShell>
   );
 }
