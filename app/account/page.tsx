@@ -8,6 +8,7 @@ import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
 import { accountSignals } from "@/lib/account/account-signal";
 import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
 import { getCurrentUser } from "@/lib/supabase/auth";
+import { AccountSessionCard } from "@/components/account/account-session-card";
 
 export default async function AccountPage() {
   const user = await getCurrentUser();
@@ -22,6 +23,8 @@ export default async function AccountPage() {
   return (
     <AnalyzerPageShell>
       <AccountPageHeader />
+
+      <AccountSessionCard email={user.email} />
 
       {!savedReportsResult.success && (
         <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 px-5 py-4">
