@@ -3,7 +3,7 @@ import { AccountDashboardPlaceholder } from "@/components/account/account-dashbo
 import { AccountPageHeader } from "@/components/account/account-page-header";
 import { AccountSignalCard } from "@/components/account/account-signal-card";
 import { BadgeProgressPreview } from "@/components/account/badge-progress-preview";
-import { SavedReportHistoryPreview } from "@/components/account/saved-report-history-preview";
+import { AccountReportArchive } from "@/components/account/account-report-archive";
 import { AnalyzerPageShell } from "@/components/analyze/analyzer-page-shell";
 import { accountSignals } from "@/lib/account/account-signal";
 import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
@@ -44,7 +44,7 @@ export default async function AccountPage() {
 
       <BadgeProgressPreview savedReportCount={savedReports.length} />
 
-      <SavedReportHistoryPreview reports={savedReports} />
+      <AccountReportArchive reports={savedReports} />
 
       <AccountDashboardPlaceholder />
     </AnalyzerPageShell>
