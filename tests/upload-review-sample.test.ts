@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { realLabelUploadReviewSample } from "@/lib/analyze/upload-review-sample";
+import { realLabelUploadExtractionDraft } from "@/lib/analyze/upload-review-sample";
+
+it("keeps extraction draft confidence available for review UX", () => {
+  expect(realLabelUploadExtractionDraft.calories.confidence).toBe("High");
+  expect(realLabelUploadExtractionDraft.ingredients.confidence).toBe("Low");
+});
 
 describe("upload review sample", () => {
   it("keeps the real label sample ready for upload review testing", () => {

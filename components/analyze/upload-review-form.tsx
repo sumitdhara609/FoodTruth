@@ -3,10 +3,10 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { saveManualReportAction } from "@/app/analyze/manual/actions";
+import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-summary";
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
-import { realLabelUploadReviewSample } from "@/lib/analyze/upload-review-sample";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import {
   buildFoodLabelInputFromManualState,
@@ -17,6 +17,10 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
+import {
+  realLabelUploadExtractionDraft,
+  realLabelUploadReviewSample,
+} from "@/lib/analyze/upload-review-sample";
 import {
   uploadReviewFormCopy,
   uploadReviewValueModeOptions,
@@ -103,12 +107,12 @@ export function UploadReviewForm() {
     setSaveMessage(null);
   };
 
-const handleUseRealLabelSample = () => {
-  setFormState(realLabelUploadReviewSample);
-  setValueMode("per-serving");
-  setResult(null);
-  setSaveMessage(null);
-};
+  const handleUseRealLabelSample = () => {
+    setFormState(realLabelUploadReviewSample);
+    setValueMode("per-serving");
+    setResult(null);
+    setSaveMessage(null);
+  };
 
   const renderNumericField = (field: ManualNumericField) => {
     return (
@@ -168,6 +172,7 @@ const handleUseRealLabelSample = () => {
                 <span className="block text-sm font-semibold text-[var(--foreground)]/76">
                   {option.label}
                 </span>
+
                 <span className="mt-2 block text-xs leading-6 text-[var(--foreground)]/48">
                   {option.description}
                 </span>
@@ -188,6 +193,10 @@ const handleUseRealLabelSample = () => {
           <p className="mt-3 text-sm leading-7 text-[var(--foreground)]/55">
             {uploadReviewFormCopy.privacy}
           </p>
+        </div>
+
+        <div className="mt-4">
+          <ExtractionDraftSummary draft={realLabelUploadExtractionDraft} />
         </div>
 
         <div className="mt-8 space-y-5">
