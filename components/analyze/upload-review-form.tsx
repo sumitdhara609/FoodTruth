@@ -6,6 +6,7 @@ import { saveManualReportAction } from "@/app/analyze/manual/actions";
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
+import { realLabelUploadReviewSample } from "@/lib/analyze/upload-review-sample";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import {
   buildFoodLabelInputFromManualState,
@@ -101,6 +102,13 @@ export function UploadReviewForm() {
     setResult(null);
     setSaveMessage(null);
   };
+
+const handleUseRealLabelSample = () => {
+  setFormState(realLabelUploadReviewSample);
+  setValueMode("per-serving");
+  setResult(null);
+  setSaveMessage(null);
+};
 
   const renderNumericField = (field: ManualNumericField) => {
     return (
@@ -284,6 +292,14 @@ export function UploadReviewForm() {
             className="rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-[var(--background)] shadow-[0_18px_45px_rgba(22,63,47,0.18)] transition hover:opacity-90"
           >
             Generate upload report
+          </button>
+
+          <button
+            type="button"
+            onClick={handleUseRealLabelSample}
+            className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+          >
+            Use real label sample
           </button>
 
           <button
