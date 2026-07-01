@@ -9,14 +9,21 @@ import { getProfileForUser } from "@/lib/database/profile-query-service";
 import { getSavedReportsForUser } from "@/lib/database/saved-report-query-service";
 import { getCurrentUser } from "@/lib/supabase/auth";
 
-export default async function AccountPage() {
+type AccountPageProps = {
+  searchParams: Promise<{
+    message?: string;
+  }>;
+};
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/auth/sign-in?message=Please sign in to view your account.");
   }
 
-  const [profileResult, savedReportsResult] = await Promise.all([
+  const [query, profileResult, savedReportsResult] = await Promise.all([
+    searchParams,
     getProfileForUser(user.id),
     getSavedReportsForUser(user.id),
   ]);
@@ -42,6 +49,12 @@ export default async function AccountPage() {
           here.
         </p>
       </section>
+
+      {query.message && (
+        <div className="mt-6 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+          {query.message}
+        </div>
+      )}
 
       <div className="mt-10 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
         <AccountReportStats stats={stats} />
