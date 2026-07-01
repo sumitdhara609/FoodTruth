@@ -1,6 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import {
+  buildAuthCallbackUrl,
+  defaultAuthRedirectPath,
+} from "@/lib/auth/auth-redirect";
+import { validateAuthCredentials } from "@/lib/auth/auth-validation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const getFormValue = (formData: FormData, key: string) => {
@@ -10,35 +16,45 @@ const getFormValue = (formData: FormData, key: string) => {
     return "";
   }
 
-  return value.trim();
+  return value;
 };
 
 const buildAuthRedirect = (path: string, message: string) => {
   return `${path}?message=${encodeURIComponent(message)}`;
 };
 
+const getRequestOrigin = async () => {
+  const headerStore = await headers();
+
+  return (
+    headerStore.get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:3000"
+  );
+};
+
 export async function signUpAction(formData: FormData) {
-  const email = getFormValue(formData, "email");
-  const password = getFormValue(formData, "password");
+  const validation = validateAuthCredentials(
+    getFormValue(formData, "email"),
+    getFormValue(formData, "password")
+  );
 
-  if (!email || !password) {
-    redirect(buildAuthRedirect("/auth/sign-up", "Email and password are required."));
+  if (!validation.success) {
+    redirect(buildAuthRedirect("/auth/sign-up", validation.message));
   }
 
-  if (password.length < 8) {
-    redirect(
-      buildAuthRedirect(
-        "/auth/sign-up",
-        "Password must be at least 8 characters."
-      )
-    );
-  }
-
+  const origin = await getRequestOrigin();
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.auth.signUp({
-    email,
-    password,
+    email: validation.email,
+    password: validation.password,
+    options: {
+      emailRedirectTo: buildAuthCallbackUrl({
+        origin,
+        nextPath: defaultAuthRedirectPath,
+      }),
+    },
   });
 
   if (error) {
@@ -48,24 +64,26 @@ export async function signUpAction(formData: FormData) {
   redirect(
     buildAuthRedirect(
       "/auth/sign-in",
-      "Account created. Check your email if confirmation is required, then sign in."
+      "Account created. Please confirm your email before signing in."
     )
   );
 }
 
 export async function signInAction(formData: FormData) {
-  const email = getFormValue(formData, "email");
-  const password = getFormValue(formData, "password");
+  const validation = validateAuthCredentials(
+    getFormValue(formData, "email"),
+    getFormValue(formData, "password")
+  );
 
-  if (!email || !password) {
-    redirect(buildAuthRedirect("/auth/sign-in", "Email and password are required."));
+  if (!validation.success) {
+    redirect(buildAuthRedirect("/auth/sign-in", validation.message));
   }
 
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+    email: validation.email,
+    password: validation.password,
   });
 
   if (error) {
@@ -73,4 +91,12 @@ export async function signInAction(formData: FormData) {
   }
 
   redirect("/account");
+}
+
+export async function signOutAction() {
+  const supabase = await createSupabaseServerClient();
+
+  await supabase.auth.signOut();
+
+  redirect("/auth/sign-in?message=You have been signed out.");
 }
