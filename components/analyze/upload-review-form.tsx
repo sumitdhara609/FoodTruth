@@ -7,9 +7,9 @@ import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-su
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
+import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
-import { runActiveUploadExtraction } from "@/lib/analyze/extraction-provider-registry";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -19,6 +19,9 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
+import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { runMockUploadOcrTextExtraction } from "@/lib/analyze/ocr-text-provider";
+import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import {
   parseUploadSessionInput,
   uploadSessionBridgeConfig,
@@ -92,6 +95,9 @@ export function UploadReviewForm() {
   const [extractionMessage, setExtractionMessage] = useState<string | null>(
     null
   );
+  const [ocrTextResult, setOcrTextResult] = useState<OcrTextResult | null>(
+    null
+  );
   const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = new Map(
@@ -145,6 +151,7 @@ export function UploadReviewForm() {
     setResult(null);
     setSaveMessage(null);
     setExtractionMessage(null);
+    setOcrTextResult(null);
   };
 
   const handleRunExtraction = () => {
@@ -152,20 +159,26 @@ export function UploadReviewForm() {
 
     startSavingTransition(() => {
       void (async () => {
-        const extractionResult = await runActiveUploadExtraction(
-          uploadInput?.mimeType
+        const ocrResult = await runMockUploadOcrTextExtraction(
+          uploadInput ?? undefined
         );
 
-        if (!extractionResult.success) {
-          setExtractionMessage(extractionResult.message);
+        setOcrTextResult(ocrResult);
+
+        if (!ocrResult.success) {
+          setExtractionMessage(ocrResult.message);
           return;
         }
 
-        setFormState(mapExtractionDraftToManualState(extractionResult.draft));
+        const draft = parseOcrTextToExtractionDraft(ocrResult);
+
+        setFormState(mapExtractionDraftToManualState(draft));
         setValueMode("per-serving");
         setResult(null);
         setSaveMessage(null);
-        setExtractionMessage(extractionResult.message);
+        setExtractionMessage(
+          "OCR text converted into an extraction draft. Review the values before generating a report."
+        );
       })();
     });
   };
@@ -266,6 +279,10 @@ export function UploadReviewForm() {
             {extractionMessage}
           </div>
         )}
+
+        <div className="mt-4">
+          <OcrTextPanel result={ocrTextResult} />
+        </div>
 
         <div className="mt-8 space-y-5">
           <FormSection
