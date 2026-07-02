@@ -1,5 +1,6 @@
 import { mockUploadOcrTextResult } from "@/lib/analyze/mock-ocr-text";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
+import type { UploadImageInput } from "@/lib/analyze/upload-image-input";
 
 export type OcrTextProviderConfig = {
   activeProvider: "mock";
@@ -17,7 +18,13 @@ export const ocrTextProviderConfig: OcrTextProviderConfig = {
   requiresUserReview: true,
 };
 
-export const runMockUploadOcrTextExtraction =
-  async (): Promise<OcrTextResult> => {
-    return mockUploadOcrTextResult;
+export const runMockUploadOcrTextExtraction = async (
+  input?: UploadImageInput
+): Promise<OcrTextResult> => {
+  return {
+    ...mockUploadOcrTextResult,
+    source: input?.source ?? "upload",
+    message:
+      "Mock OCR text extracted from a temporary upload input. Review is required before report generation.",
   };
+};

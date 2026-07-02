@@ -34,7 +34,7 @@ export const extractionProviders: Record<
     description:
       "Creates a review draft while real OCR extraction is not active.",
     status: "Active",
-    run: runMockUploadExtraction,
+    run: () => runMockUploadExtraction(),
   },
   ocr: {
     key: "ocr",
