@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  createUploadSessionInputFromMimeType,
-  serializeUploadSessionInput,
+  createUploadSessionRecord,
+  serializeUploadSessionRecord,
   uploadSessionBridgeConfig,
 } from "@/lib/analyze/upload-session-bridge";
 import { uploadWorkspaceSteps } from "@/lib/analyze/upload-workspace";
@@ -32,9 +32,14 @@ export function UploadWorkspace() {
       return;
     }
 
-    const sessionResult = createUploadSessionInputFromMimeType(file.type);
+    const nextPreviewUrl = URL.createObjectURL(file);
+    const sessionResult = createUploadSessionRecord({
+      mimeType: file.type,
+      objectUrl: nextPreviewUrl,
+    });
 
-    if (!sessionResult.success) {
+    if (!sessionResult.success || !sessionResult.record) {
+      URL.revokeObjectURL(nextPreviewUrl);
       setUploadSessionMessage(sessionResult.message);
       event.target.value = "";
       return;
@@ -42,12 +47,10 @@ export function UploadWorkspace() {
 
     window.sessionStorage.setItem(
       uploadSessionBridgeConfig.storageKey,
-      serializeUploadSessionInput(sessionResult.input)
+      serializeUploadSessionRecord(sessionResult.record)
     );
 
     setUploadSessionMessage(sessionResult.message);
-
-    const nextPreviewUrl = URL.createObjectURL(file);
 
     setPreviewUrl((currentPreviewUrl) => {
       if (currentPreviewUrl) {

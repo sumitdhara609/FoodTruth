@@ -9,6 +9,7 @@ import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
+import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
 import {
   buildFoodLabelInputFromManualState,
@@ -82,6 +83,9 @@ export function UploadReviewForm() {
   const uploadSessionResult = parseUploadSessionInput(uploadSessionSnapshot);
   const uploadInput = uploadSessionResult.success
     ? uploadSessionResult.input
+    : null;
+  const uploadObjectUrl = uploadSessionResult.success
+    ? uploadSessionResult.objectUrl
     : null;
   const uploadInputMessage = uploadSessionResult.message;
 
@@ -159,9 +163,27 @@ export function UploadReviewForm() {
 
     startSavingTransition(() => {
       void (async () => {
-        const ocrResult = await runMockUploadOcrTextExtraction(
-          uploadInput ?? undefined
-        );
+        let ocrResult: OcrTextResult | null = null;
+
+        if (uploadInput && uploadObjectUrl) {
+          ocrResult = await runBrowserOcrExtraction({
+            source: "upload",
+            image: uploadObjectUrl,
+            uploadInput,
+          });
+        }
+
+        if (!ocrResult?.success) {
+          const fallbackResult = await runMockUploadOcrTextExtraction(
+            uploadInput ?? undefined
+          );
+
+          ocrResult = {
+            ...fallbackResult,
+            message:
+              "Browser OCR is not ready for this image yet. Showing extraction draft fallback for review.",
+          };
+        }
 
         setOcrTextResult(ocrResult);
 

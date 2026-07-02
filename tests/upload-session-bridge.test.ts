@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   createUploadSessionInputFromMimeType,
+  createUploadSessionRecord,
   parseUploadSessionInput,
   serializeUploadSessionInput,
+  serializeUploadSessionRecord,
   uploadSessionBridgeConfig,
 } from "@/lib/analyze/upload-session-bridge";
 
@@ -11,7 +13,7 @@ describe("upload session bridge", () => {
     expect(uploadSessionBridgeConfig.storesOriginalImage).toBe(false);
     expect(uploadSessionBridgeConfig.storesFileName).toBe(false);
     expect(uploadSessionBridgeConfig.storesFileSize).toBe(false);
-    expect(uploadSessionBridgeConfig.storesMimeTypeOnly).toBe(true);
+    expect(uploadSessionBridgeConfig.storesTemporaryObjectUrl).toBe(true);
   });
 
   it("creates a temporary upload input from a supported mime type", () => {
@@ -22,6 +24,22 @@ describe("upload session bridge", () => {
     if (result.success) {
       expect(result.input.mimeType).toBe("image/png");
       expect(result.input.originalImageStored).toBe(false);
+    }
+  });
+
+  it("creates a temporary upload record with object URL", () => {
+    const result = createUploadSessionRecord({
+      mimeType: "image/jpeg",
+      objectUrl: "blob:http://localhost/mock-image",
+    });
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.objectUrl).toBe("blob:http://localhost/mock-image");
+      expect(result.record?.fileNameStored).toBe(false);
+      expect(result.record?.fileSizeStored).toBe(false);
+      expect(result.record?.originalImageStored).toBe(false);
     }
   });
 
@@ -48,6 +66,36 @@ describe("upload session bridge", () => {
     if (parsed.success) {
       expect(parsed.input.mimeType).toBe("image/webp");
       expect(parsed.input.fileNameStored).toBe(false);
+      expect(parsed.input.fileSizeStored).toBe(false);
+      expect(parsed.input.originalImageStored).toBe(false);
+      expect(parsed.objectUrl).toBeNull();
+      expect(parsed.record).toBeNull();
+    }
+  });
+
+  it("serializes and parses the temporary upload record", () => {
+    const result = createUploadSessionRecord({
+      mimeType: "image/png",
+      objectUrl: "blob:http://localhost/temporary-label",
+    });
+
+    expect(result.success).toBe(true);
+
+    if (!result.success || !result.record) {
+      return;
+    }
+
+    const serialized = serializeUploadSessionRecord(result.record);
+    const parsed = parseUploadSessionInput(serialized);
+
+    expect(parsed.success).toBe(true);
+
+    if (parsed.success) {
+      expect(parsed.input.mimeType).toBe("image/png");
+      expect(parsed.objectUrl).toBe("blob:http://localhost/temporary-label");
+      expect(parsed.record?.originalImageStored).toBe(false);
+      expect(parsed.record?.fileNameStored).toBe(false);
+      expect(parsed.record?.fileSizeStored).toBe(false);
     }
   });
 
