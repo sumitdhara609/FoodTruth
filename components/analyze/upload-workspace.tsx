@@ -2,10 +2,18 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import {
+  createUploadSessionInputFromMimeType,
+  serializeUploadSessionInput,
+  uploadSessionBridgeConfig,
+} from "@/lib/analyze/upload-session-bridge";
 import { uploadWorkspaceSteps } from "@/lib/analyze/upload-workspace";
 
 export function UploadWorkspace() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadSessionMessage, setUploadSessionMessage] = useState<
+    string | null
+  >(null);
 
   const hasPreview = Boolean(previewUrl);
 
@@ -24,7 +32,23 @@ export function UploadWorkspace() {
       return;
     }
 
+    const sessionResult = createUploadSessionInputFromMimeType(file.type);
+
+    if (!sessionResult.success) {
+      setUploadSessionMessage(sessionResult.message);
+      event.target.value = "";
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      uploadSessionBridgeConfig.storageKey,
+      serializeUploadSessionInput(sessionResult.input)
+    );
+
+    setUploadSessionMessage(sessionResult.message);
+
     const nextPreviewUrl = URL.createObjectURL(file);
+
     setPreviewUrl((currentPreviewUrl) => {
       if (currentPreviewUrl) {
         URL.revokeObjectURL(currentPreviewUrl);
@@ -44,6 +68,9 @@ export function UploadWorkspace() {
 
       return null;
     });
+
+    window.sessionStorage.removeItem(uploadSessionBridgeConfig.storageKey);
+    setUploadSessionMessage("Temporary upload input cleared.");
   };
 
   return (
@@ -90,6 +117,12 @@ export function UploadWorkspace() {
             size. Only reviewed label data and report signals may be saved.
           </p>
         </div>
+
+        {uploadSessionMessage && (
+          <div className="mt-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+            {uploadSessionMessage}
+          </div>
+        )}
       </div>
 
       <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5 shadow-[var(--shadow-soft)]">
@@ -160,17 +193,17 @@ export function UploadWorkspace() {
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
-  href="/analyze/upload/review"
-  className="inline-flex justify-center rounded-full bg-[var(--primary)] px-5 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
->
-  Open upload review
-</Link>
+            href="/analyze/upload/review"
+            className="inline-flex justify-center rounded-full bg-[var(--primary)] px-5 py-3 text-xs font-semibold text-[var(--background)] transition hover:opacity-90"
+          >
+            Open upload review
+          </Link>
 
           <Link
             href="/account"
             className="inline-flex justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-5 py-3 text-xs font-semibold text-[var(--foreground)]/60 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
           >
-            Open account archive
+            Open dashboard
           </Link>
         </div>
       </div>

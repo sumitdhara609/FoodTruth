@@ -20,8 +20,8 @@ describe("extraction provider registry", () => {
     expect(plannedProviders.map((provider) => provider.key)).toContain("ocr");
   });
 
-  it("runs the active extraction provider", async () => {
-    const result = await runActiveUploadExtraction();
+  it("runs the active extraction provider with upload mime type", async () => {
+    const result = await runActiveUploadExtraction("image/png");
 
     expect(result.success).toBe(true);
 

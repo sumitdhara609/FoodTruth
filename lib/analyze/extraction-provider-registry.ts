@@ -3,6 +3,7 @@ import {
   extractionProviderConfig,
   runMockUploadExtraction,
 } from "@/lib/analyze/extraction-provider";
+import type { UploadImageMimeType } from "@/lib/analyze/upload-image-input";
 
 export type ExtractionProviderKey = "mock" | "ocr";
 
@@ -11,18 +12,17 @@ export type ExtractionProviderDefinition = {
   label: string;
   description: string;
   status: "Active" | "Planned";
-  run: () => Promise<ExtractionProviderResult>;
+  run: (mimeType?: UploadImageMimeType) => Promise<ExtractionProviderResult>;
 };
 
-const runUnavailableOcrExtraction =
-  async (): Promise<ExtractionProviderResult> => {
-    return {
-      success: false,
-      status: "Unavailable",
-      message:
-        "OCR extraction is planned but not active yet. Use the review form or extraction draft for now.",
-    };
+const runUnavailableOcrExtraction = async (): Promise<ExtractionProviderResult> => {
+  return {
+    success: false,
+    status: "Unavailable",
+    message:
+      "OCR extraction is planned but not active yet. Use the review form or extraction draft for now.",
   };
+};
 
 export const extractionProviders: Record<
   ExtractionProviderKey,
@@ -34,7 +34,7 @@ export const extractionProviders: Record<
     description:
       "Creates a review draft while real OCR extraction is not active.",
     status: "Active",
-    run: () => runMockUploadExtraction(),
+    run: runMockUploadExtraction,
   },
   ocr: {
     key: "ocr",
@@ -56,8 +56,10 @@ export const getPlannedExtractionProviders = () => {
   );
 };
 
-export const runActiveUploadExtraction = async () => {
+export const runActiveUploadExtraction = async (
+  mimeType?: UploadImageMimeType
+) => {
   const provider = getActiveExtractionProvider();
 
-  return provider.run();
+  return provider.run(mimeType);
 };

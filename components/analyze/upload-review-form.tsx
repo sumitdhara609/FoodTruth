@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import { saveUploadReviewReportAction } from "@/app/analyze/upload/review/actions";
 import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-summary";
@@ -19,6 +19,10 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
+import {
+  parseUploadSessionInput,
+  uploadSessionBridgeConfig,
+} from "@/lib/analyze/upload-session-bridge";
 import { realLabelUploadExtractionDraft } from "@/lib/analyze/upload-review-sample";
 import {
   uploadReviewFormCopy,
@@ -45,7 +49,39 @@ const initialUploadReviewState: ManualAnalyzerState = {
   claims: "",
 };
 
+const subscribeToUploadSession = (callback: () => void) => {
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+  };
+};
+
+const getUploadSessionSnapshot = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(uploadSessionBridgeConfig.storageKey);
+};
+
+const getUploadSessionServerSnapshot = () => {
+  return null;
+};
+
 export function UploadReviewForm() {
+  const uploadSessionSnapshot = useSyncExternalStore(
+    subscribeToUploadSession,
+    getUploadSessionSnapshot,
+    getUploadSessionServerSnapshot
+  );
+
+  const uploadSessionResult = parseUploadSessionInput(uploadSessionSnapshot);
+  const uploadInput = uploadSessionResult.success
+    ? uploadSessionResult.input
+    : null;
+  const uploadInputMessage = uploadSessionResult.message;
+
   const [formState, setFormState] = useState<ManualAnalyzerState>(
     initialUploadReviewState
   );
@@ -116,7 +152,9 @@ export function UploadReviewForm() {
 
     startSavingTransition(() => {
       void (async () => {
-        const extractionResult = await runActiveUploadExtraction();
+        const extractionResult = await runActiveUploadExtraction(
+          uploadInput?.mimeType
+        );
 
         if (!extractionResult.success) {
           setExtractionMessage(extractionResult.message);
@@ -216,6 +254,12 @@ export function UploadReviewForm() {
         <div className="mt-4">
           <ExtractionDraftSummary draft={realLabelUploadExtractionDraft} />
         </div>
+
+        {uploadInputMessage && (
+          <div className="mt-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--background)]/70 p-4 text-sm leading-6 text-[var(--foreground)]/55">
+            {uploadInputMessage}
+          </div>
+        )}
 
         {extractionMessage && (
           <div className="mt-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-4 text-sm leading-6 text-[var(--foreground)]/55">
