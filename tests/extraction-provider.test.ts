@@ -11,7 +11,7 @@ describe("extraction provider", () => {
     expect(extractionProviderConfig.directImageToReport).toBe(false);
   });
 
-  it("returns a draft extraction for upload review testing", async () => {
+  it("returns a draft extraction from OCR text for upload review testing", async () => {
     const result = await runMockUploadExtraction();
 
     expect(result.success).toBe(true);
@@ -19,7 +19,7 @@ describe("extraction provider", () => {
     if (result.success) {
       expect(result.status).toBe("Mock");
       expect(result.message).toBe(
-        "Extraction draft created. Review the values before generating a report."
+        "OCR text converted into an extraction draft. Review the values before generating a report."
       );
       expect(result.draft.calories.value).toBe("126.91");
       expect(result.draft.ingredients.confidence).toBe("Low");
