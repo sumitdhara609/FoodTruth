@@ -1,5 +1,6 @@
 "use server";
 
+import type { ReviewSaveActionResult } from "@/lib/analyze/review-save-contract";
 import type { ManualAnalyzerState } from "@/lib/analyze/manual-input-adapter";
 import { buildFoodLabelInputFromManualState } from "@/lib/analyze/manual-input-adapter";
 import { saveFoodTruthReport } from "@/lib/database/saved-report-service";
@@ -7,20 +8,9 @@ import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtru
 import { saveReportMessages } from "@/lib/report/save-report-message";
 import { getCurrentUser } from "@/lib/supabase/auth";
 
-export type SaveUploadReviewReportActionResult =
-  | {
-      success: true;
-      message: string;
-      reportId: string;
-    }
-  | {
-      success: false;
-      message: string;
-    };
-
 export async function saveUploadReviewReportAction(
   reviewedLabelData: ManualAnalyzerState
-): Promise<SaveUploadReviewReportActionResult> {
+): Promise<ReviewSaveActionResult> {
   const user = await getCurrentUser();
 
   if (!user) {
