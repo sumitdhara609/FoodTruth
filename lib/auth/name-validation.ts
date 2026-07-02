@@ -6,7 +6,7 @@ export const getFirstName = (name: string | null | undefined) => {
   const normalizedName = normalizeDisplayName(name ?? "");
 
   if (!normalizedName) {
-    return "there";
+    return "";
   }
 
   return normalizedName.split(" ")[0];

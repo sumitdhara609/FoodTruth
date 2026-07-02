@@ -10,8 +10,9 @@ describe("name validation", () => {
     expect(getFirstName("Sumit Dhara")).toBe("Sumit");
   });
 
-  it("returns fallback when name is missing", () => {
-    expect(getFirstName("")).toBe("there");
-    expect(getFirstName(null)).toBe("there");
+  it("returns an empty fallback when name is missing", () => {
+    expect(getFirstName("")).toBe("");
+    expect(getFirstName(null)).toBe("");
+    expect(getFirstName(undefined)).toBe("");
   });
 });

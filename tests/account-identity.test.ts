@@ -1,39 +1,37 @@
 import { describe, expect, it } from "vitest";
+import type { User } from "@supabase/supabase-js";
+import type { AccountProfile } from "@/lib/account/account-profile";
 import {
   getAccountDisplayName,
   getAccountFirstName,
   getUserMetadataFullName,
 } from "@/lib/account/account-identity";
 
-const createUser = (fullName: unknown) => {
-  return {
-    id: "user_123",
-    app_metadata: {},
-    aud: "authenticated",
-    created_at: "2026-01-01T00:00:00.000Z",
-    user_metadata: {
-      full_name: fullName,
-    },
-  };
-};
+const createUser = (fullName: string | null): User =>
+  ({
+    id: "user-1",
+    email: "sumit@example.com",
+    user_metadata: fullName ? { full_name: fullName } : {},
+  }) as User;
+
+const createProfile = (fullName: string | null): AccountProfile => ({
+  id: "user-1",
+  email: "sumit@example.com",
+  fullName,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+});
 
 describe("account identity", () => {
   it("reads full name from user metadata", () => {
-    const user = createUser("Sumit Dhara");
-
-    expect(getUserMetadataFullName(user)).toBe("Sumit Dhara");
+    expect(getUserMetadataFullName(createUser("Sumit Dhara"))).toBe(
+      "Sumit Dhara"
+    );
   });
 
   it("prefers profile full name over auth metadata", () => {
-    const user = createUser("Metadata Name");
-
-    const profile = {
-      id: "user_123",
-      email: "sumit@example.com",
-      fullName: "Profile Name",
-      createdAt: "2026-01-01T00:00:00.000Z",
-      updatedAt: "2026-01-01T00:00:00.000Z",
-    };
+    const user = createUser("Auth Name");
+    const profile = createProfile("Profile Name");
 
     expect(getAccountDisplayName({ profile, user })).toBe("Profile Name");
   });
@@ -44,9 +42,9 @@ describe("account identity", () => {
     expect(getAccountFirstName({ profile: null, user })).toBe("Sumit");
   });
 
-  it("falls back politely when no name exists", () => {
+  it("falls back cleanly when no name exists", () => {
     const user = createUser(null);
 
-    expect(getAccountFirstName({ profile: null, user })).toBe("there");
+    expect(getAccountFirstName({ profile: null, user })).toBe("");
   });
 });

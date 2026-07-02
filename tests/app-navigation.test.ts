@@ -12,7 +12,7 @@ describe("app navigation", () => {
         href: "/analyze",
       },
       {
-        label: "Account",
+        label: "Dashboard",
         href: "/account",
       },
       {
@@ -36,10 +36,10 @@ describe("app navigation", () => {
   });
 
   it("keeps all navigation routes absolute", () => {
-    const allLinks = [...appNavigationLinks, ...authNavigationLinks];
+    const routes = [...appNavigationLinks, ...authNavigationLinks].map(
+      (link) => link.href
+    );
 
-    for (const link of allLinks) {
-      expect(link.href).toMatch(/^\//);
-    }
+    expect(routes.every((route) => route.startsWith("/"))).toBe(true);
   });
 });

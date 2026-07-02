@@ -4,7 +4,7 @@ export const appNavigationLinks = [
     href: "/analyze",
   },
   {
-    label: "Account",
+    label: "Dashboard",
     href: "/account",
   },
   {

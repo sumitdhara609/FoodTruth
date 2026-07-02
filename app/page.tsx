@@ -4,6 +4,7 @@ import { InputModeCard } from "@/components/landing/input-mode-card";
 import { ScanPreview } from "@/components/landing/scan-preview";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { getCurrentUser } from "@/lib/supabase/auth";
 
 const inputModes = [
   {
@@ -23,7 +24,10 @@ const inputModes = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const isSignedIn = Boolean(user);
+
   return (
     <main className="min-h-screen overflow-hidden px-4 py-4 sm:px-8 sm:py-8 lg:px-14">
       <section className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl flex-col overflow-hidden rounded-[2.25rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-8 lg:p-10">
@@ -53,10 +57,10 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/auth/sign-in"
+              href={isSignedIn ? "/account" : "/auth/sign-in"}
               className="rounded-full bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] shadow-[0_14px_35px_rgba(22,63,47,0.16)] transition hover:opacity-90"
             >
-              Account
+              {isSignedIn ? "Dashboard" : "Sign in"}
             </Link>
 
             <ThemeToggle />
@@ -88,10 +92,10 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/auth/sign-in"
+                href={isSignedIn ? "/account" : "/auth/sign-in"}
                 className="inline-flex justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)]/70 transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
               >
-                Open account
+                {isSignedIn ? "Open dashboard" : "Sign in"}
               </Link>
             </div>
 

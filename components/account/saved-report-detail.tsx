@@ -1,10 +1,13 @@
 import type { SavedLabelReport } from "@/lib/account/saved-label-report";
+import { getReportSourceContract } from "@/lib/report/report-source-contract";
 
 type SavedReportDetailProps = {
   report: SavedLabelReport;
 };
 
 export function SavedReportDetail({ report }: SavedReportDetailProps) {
+  const sourceContract = getReportSourceContract(report.source);
+
   return (
     <section className="mt-10 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
       <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]/78 p-6 shadow-[var(--shadow-soft)]">
@@ -25,7 +28,7 @@ export function SavedReportDetail({ report }: SavedReportDetailProps) {
           </div>
 
           <span className="rounded-full bg-[var(--accent-muted)] px-4 py-2 text-xs font-semibold text-[var(--primary)]">
-            {report.source}
+            {sourceContract.label}
           </span>
         </div>
 
@@ -59,22 +62,19 @@ export function SavedReportDetail({ report }: SavedReportDetailProps) {
       </div>
 
       <div className="grid gap-4">
-        <SignalBlock
+        <SnapshotGrid
           title="Nutrition Snapshot"
-          content={report.nutritionSnapshot}
+          items={report.nutritionSnapshot}
         />
 
-        <SignalBlock
+        <SnapshotGrid
           title="Ingredient Snapshot"
-          content={report.ingredientSnapshot}
+          items={report.ingredientSnapshot}
         />
 
-        <SignalBlock title="Claim Snapshot" content={report.claimSnapshot} />
+        <SnapshotGrid title="Claim Snapshot" items={report.claimSnapshot} />
 
-        <SignalBlock
-          title="Serving Snapshot"
-          content={report.servingSnapshot}
-        />
+        <SnapshotGrid title="Serving Snapshot" items={report.servingSnapshot} />
 
         <div className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5">
           <p className="text-xs uppercase tracking-[0.26em] text-[var(--primary)]/70">
@@ -97,16 +97,53 @@ export function SavedReportDetail({ report }: SavedReportDetailProps) {
   );
 }
 
-function SignalBlock({ title, content }: { title: string; content: unknown }) {
+function SnapshotGrid({
+  title,
+  items,
+}: {
+  title: string;
+  items: Record<string, unknown>;
+}) {
   return (
     <div className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)]/78 p-5">
       <p className="text-xs uppercase tracking-[0.26em] text-[var(--primary)]/70">
         {title}
       </p>
 
-      <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-[var(--background)]/70 p-4 text-xs leading-6 text-[var(--foreground)]/58">
-        {JSON.stringify(content, null, 2)}
-      </pre>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {Object.entries(items).map(([key, value]) => (
+          <div
+            key={key}
+            className="rounded-2xl border border-[var(--border)] bg-[var(--background)]/70 p-4"
+          >
+            <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--foreground)]/38">
+              {formatSnapshotKey(key)}
+            </p>
+
+            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--foreground)]/70">
+              {formatSnapshotValue(value)}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
+}
+
+function formatSnapshotKey(key: string) {
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function formatSnapshotValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value.join(", ") : "None detected";
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return "Not available";
+  }
+
+  return String(value);
 }
