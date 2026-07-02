@@ -17,15 +17,15 @@ export type InputPlaceholderConfig = {
 
 export const uploadInputPlaceholder: InputPlaceholderConfig = {
   icon: ImagePlus,
-  title: "Label image upload will appear here.",
-  description: `Future upload will accept JPG, PNG, or WEBP label images up to ${MAX_LABEL_UPLOAD_SIZE_MB} MB and convert them into reviewable label values.`,
-  buttonLabel: "Upload coming later",
+  title: "Upload a label image.",
+  description: `Upload supports JPG, PNG, or WEBP label images up to ${MAX_LABEL_UPLOAD_SIZE_MB} MB. FoodTruth uses the image as a temporary input so you can prepare reviewed label values before generating a report.`,
+  buttonLabel: "Open upload review",
   infoItems: [
     {
       icon: ShieldCheck,
       eyebrow: "Storage rule",
       description:
-        "The image will be treated as a temporary input. FoodTruth records should preserve reviewed label data and report signals, not file names, file sizes, or original images.",
+        "The image is treated as a temporary input. FoodTruth records preserve reviewed label data and report signals, not file names, file sizes, or original images.",
     },
   ],
 };

@@ -4,18 +4,18 @@ import { uploadInputPlaceholder } from "@/lib/analyze/upload-input-placeholder";
 
 describe("input placeholder configuration", () => {
   it("keeps upload placeholder aligned with temporary image handling", () => {
-    expect(uploadInputPlaceholder.title).toBe(
-      "Label image upload will appear here."
-    );
-    expect(uploadInputPlaceholder.buttonLabel).toBe("Upload coming later");
+    expect(uploadInputPlaceholder.title).toBe("Upload a label image.");
+    expect(uploadInputPlaceholder.buttonLabel).toBe("Open upload review");
     expect(uploadInputPlaceholder.infoItems).toHaveLength(1);
     expect(uploadInputPlaceholder.description).toContain("JPG, PNG, or WEBP");
+    expect(uploadInputPlaceholder.description).toContain("temporary input");
   });
 
   it("keeps scan placeholder aligned with review-first capture", () => {
-    expect(scanInputPlaceholder.title).toBe("Camera scan will appear here.");
-    expect(scanInputPlaceholder.buttonLabel).toBe("Scan coming later");
+    expect(scanInputPlaceholder.title).toBe("Prepare a scan review.");
+    expect(scanInputPlaceholder.buttonLabel).toBe("Open scan workspace");
     expect(scanInputPlaceholder.infoItems).toHaveLength(2);
+    expect(scanInputPlaceholder.description).toContain("review-first workspace");
     expect(scanInputPlaceholder.infoItems.map((item) => item.eyebrow)).toEqual([
       "Review first",
       "Storage rule",

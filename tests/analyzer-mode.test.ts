@@ -7,44 +7,49 @@ import {
 } from "@/lib/analyze/analyzer-mode";
 
 describe("analyzer modes", () => {
-  it("keeps manual entry as the only active analyzer mode", () => {
+  it("keeps manual entry and upload as active analyzer modes", () => {
     const activeModes = getActiveAnalyzerModes();
 
-    expect(activeModes).toHaveLength(1);
-    expect(activeModes[0].title).toBe("Manual Entry");
-    expect(activeModes[0].href).toBe("/analyze/manual");
+    expect(activeModes.map((mode) => mode.title)).toEqual([
+      "Manual Entry",
+      "Upload Label",
+    ]);
   });
 
-  it("keeps upload and scan as planned placeholder routes", () => {
+  it("keeps scan as the foundation analyzer mode", () => {
     const plannedModes = getPlannedAnalyzerModes();
 
-    expect(plannedModes.map((mode) => mode.title)).toEqual([
-      "Upload Label",
-      "Instant Scan",
-    ]);
-    expect(plannedModes.map((mode) => mode.href)).toEqual([
-      "/analyze/upload",
-      "/analyze/scan",
-    ]);
+    expect(plannedModes.map((mode) => mode.title)).toEqual(["Instant Scan"]);
+    expect(plannedModes[0].status).toBe("Foundation");
   });
 
   it("identifies active analyzer modes safely", () => {
-    const manualMode = analyzerModes.find((mode) => mode.title === "Manual Entry");
-    const uploadMode = analyzerModes.find((mode) => mode.title === "Upload Label");
+    const manualMode = analyzerModes.find(
+      (mode) => mode.title === "Manual Entry"
+    );
+    const uploadMode = analyzerModes.find(
+      (mode) => mode.title === "Upload Label"
+    );
+    const scanMode = analyzerModes.find(
+      (mode) => mode.title === "Instant Scan"
+    );
 
     expect(manualMode).toBeDefined();
     expect(uploadMode).toBeDefined();
+    expect(scanMode).toBeDefined();
 
     expect(isAnalyzerModeActive(manualMode!)).toBe(true);
-    expect(isAnalyzerModeActive(uploadMode!)).toBe(false);
+    expect(isAnalyzerModeActive(uploadMode!)).toBe(true);
+    expect(isAnalyzerModeActive(scanMode!)).toBe(false);
   });
 
   it("keeps every analyzer mode renderable as a card", () => {
     for (const mode of analyzerModes) {
       expect(mode.title.length).toBeGreaterThan(0);
       expect(mode.description.length).toBeGreaterThan(0);
-      expect(mode.href).toMatch(/^\/analyze/);
+      expect(mode.href.startsWith("/analyze")).toBe(true);
       expect(mode.icon).toBeDefined();
+      expect(mode.actionLabel.length).toBeGreaterThan(0);
     }
   });
 

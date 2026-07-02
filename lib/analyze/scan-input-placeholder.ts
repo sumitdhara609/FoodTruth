@@ -3,22 +3,22 @@ import type { InputPlaceholderConfig } from "@/lib/analyze/upload-input-placehol
 
 export const scanInputPlaceholder: InputPlaceholderConfig = {
   icon: Camera,
-  title: "Camera scan will appear here.",
+  title: "Prepare a scan review.",
   description:
-    "Future scan mode will help capture label values quickly, then turn them into a reviewable draft before any FoodTruth report is generated.",
-  buttonLabel: "Scan coming later",
+    "Scan mode now has a review-first workspace. Camera capture is still being prepared, but scan review will use extraction drafts before any FoodTruth report is generated.",
+  buttonLabel: "Open scan workspace",
   infoItems: [
     {
       icon: ScanLine,
       eyebrow: "Review first",
       description:
-        "Detected values should be reviewed and corrected before FoodTruth creates a report.",
+        "Detected values must be reviewed and corrected before FoodTruth creates a report.",
     },
     {
       icon: ShieldCheck,
       eyebrow: "Storage rule",
       description:
-        "Camera images should remain temporary. Saved records should keep reviewed label data and report signals only.",
+        "Camera images remain temporary inputs. Saved records keep reviewed label data and report signals only.",
     },
   ],
 };

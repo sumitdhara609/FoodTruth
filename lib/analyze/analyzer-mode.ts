@@ -1,13 +1,14 @@
-import { FileText, ImagePlus, ScanLine, type LucideIcon } from "lucide-react";
+import { FileText, ScanLine, Upload, type LucideIcon } from "lucide-react";
 
-export type AnalyzerModeStatus = "Active" | "Planned";
+export type AnalyzerModeStatus = "Active" | "Foundation";
 
 export type AnalyzerMode = {
   title: string;
   description: string;
   href: string;
-  status: AnalyzerModeStatus;
   icon: LucideIcon;
+  status: AnalyzerModeStatus;
+  actionLabel: string;
 };
 
 export const analyzerModes: AnalyzerMode[] = [
@@ -16,24 +17,27 @@ export const analyzerModes: AnalyzerMode[] = [
     description:
       "Enter label values, ingredients, and claims to generate a structured FoodTruth report.",
     href: "/analyze/manual",
-    status: "Active",
     icon: FileText,
+    status: "Active",
+    actionLabel: "Open analyzer",
   },
   {
     title: "Upload Label",
     description:
-      "Upload a packaged-food label image and prepare it for structured analysis.",
+      "Upload a packaged-food label image, create an extraction draft, review the values, and generate a report.",
     href: "/analyze/upload",
-    status: "Planned",
-    icon: ImagePlus,
+    icon: Upload,
+    status: "Active",
+    actionLabel: "Open upload review",
   },
   {
     title: "Instant Scan",
     description:
-      "Use a camera-led flow for quick label capture while shopping or comparing products.",
+      "Prepare camera-led label capture through a review-first scan workflow.",
     href: "/analyze/scan",
-    status: "Planned",
     icon: ScanLine,
+    status: "Foundation",
+    actionLabel: "Open scan workspace",
   },
 ];
 
@@ -46,5 +50,5 @@ export const getActiveAnalyzerModes = () => {
 };
 
 export const getPlannedAnalyzerModes = () => {
-  return analyzerModes.filter((mode) => mode.status === "Planned");
+  return analyzerModes.filter((mode) => mode.status !== "Active");
 };
