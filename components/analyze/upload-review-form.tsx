@@ -7,10 +7,20 @@ import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-su
 import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
+import { OcrDraftQualityPanel } from "@/components/analyze/ocr-draft-quality-panel";
+import { OcrReviewDecisionPanel } from "@/components/analyze/ocr-review-decision-panel";
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
+import {
+  evaluateOcrDraftQuality,
+  type OcrDraftQualityResult,
+} from "@/lib/analyze/ocr-draft-quality";
+import {
+  getOcrReviewDecision,
+  type OcrReviewDecision,
+} from "@/lib/analyze/ocr-review-decision";
 import {
   buildFoodLabelInputFromManualState,
   type ManualAnalyzerState,
@@ -102,6 +112,10 @@ export function UploadReviewForm() {
   const [ocrTextResult, setOcrTextResult] = useState<OcrTextResult | null>(
     null
   );
+  const [ocrDraftQuality, setOcrDraftQuality] =
+    useState<OcrDraftQualityResult | null>(null);
+  const [ocrReviewDecision, setOcrReviewDecision] =
+    useState<OcrReviewDecision | null>(null);
   const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = new Map(
@@ -125,12 +139,17 @@ export function UploadReviewForm() {
   };
 
   const handleGenerateReport = () => {
+    if (ocrReviewDecision && !ocrReviewDecision.canGenerateReport) {
+      setSaveMessage(
+        "Complete the required extracted fields before generating the upload report."
+      );
+    }
+
     const nextResult = generateValidatedFoodTruthReport(
       buildFoodLabelInputFromManualState(formState)
     );
 
     setResult(nextResult);
-    setSaveMessage(null);
   };
 
   const handleSaveReport = () => {
@@ -156,6 +175,8 @@ export function UploadReviewForm() {
     setSaveMessage(null);
     setExtractionMessage(null);
     setOcrTextResult(null);
+    setOcrDraftQuality(null);
+    setOcrReviewDecision(null);
   };
 
   const handleRunExtraction = () => {
@@ -189,11 +210,17 @@ export function UploadReviewForm() {
 
         if (!ocrResult.success) {
           setExtractionMessage(ocrResult.message);
+          setOcrDraftQuality(null);
+          setOcrReviewDecision(null);
           return;
         }
 
         const draft = parseOcrTextToExtractionDraft(ocrResult);
+        const quality = evaluateOcrDraftQuality(draft);
+        const decision = getOcrReviewDecision(quality);
 
+        setOcrDraftQuality(quality);
+        setOcrReviewDecision(decision);
         setFormState(mapExtractionDraftToManualState(draft));
         setValueMode("per-serving");
         setResult(null);
@@ -304,6 +331,14 @@ export function UploadReviewForm() {
 
         <div className="mt-4">
           <OcrTextPanel result={ocrTextResult} />
+        </div>
+
+        <div className="mt-4">
+          <OcrDraftQualityPanel quality={ocrDraftQuality} />
+        </div>
+
+        <div className="mt-4">
+          <OcrReviewDecisionPanel decision={ocrReviewDecision} />
         </div>
 
         <div className="mt-8 space-y-5">
