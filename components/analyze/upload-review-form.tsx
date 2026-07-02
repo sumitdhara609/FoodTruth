@@ -9,6 +9,7 @@ import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import { OcrDraftQualityPanel } from "@/components/analyze/ocr-draft-quality-panel";
 import { OcrExtractionTimelinePanel } from "@/components/analyze/ocr-extraction-timeline-panel";
+import { OcrFieldReviewChecklistPanel } from "@/components/analyze/ocr-field-review-checklist-panel";
 import { OcrReviewDecisionPanel } from "@/components/analyze/ocr-review-decision-panel";
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
@@ -22,6 +23,10 @@ import {
   createOcrExtractionTimeline,
   type OcrExtractionTimelineStep,
 } from "@/lib/analyze/ocr-extraction-timeline";
+import {
+  createOcrFieldReviewChecklist,
+  type OcrFieldReviewChecklistItem,
+} from "@/lib/analyze/ocr-field-review-checklist";
 import {
   getOcrReviewDecision,
   type OcrReviewDecision,
@@ -124,6 +129,9 @@ export function UploadReviewForm() {
   const [ocrExtractionTimeline, setOcrExtractionTimeline] = useState<
     OcrExtractionTimelineStep[] | null
   >(null);
+  const [ocrFieldReviewChecklist, setOcrFieldReviewChecklist] = useState<
+    OcrFieldReviewChecklistItem[] | null
+  >(null);
   const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = new Map(
@@ -186,6 +194,7 @@ export function UploadReviewForm() {
     setOcrDraftQuality(null);
     setOcrReviewDecision(null);
     setOcrExtractionTimeline(null);
+    setOcrFieldReviewChecklist(null);
   };
 
   const handleRunExtraction = () => {
@@ -227,6 +236,7 @@ export function UploadReviewForm() {
           setExtractionMessage(ocrResult.message);
           setOcrDraftQuality(null);
           setOcrReviewDecision(null);
+          setOcrFieldReviewChecklist(null);
           setOcrExtractionTimeline(
             createOcrExtractionTimeline({
               hasUploadInput: Boolean(uploadInput),
@@ -245,9 +255,11 @@ export function UploadReviewForm() {
         const draft = parseOcrTextToExtractionDraft(ocrResult);
         const quality = evaluateOcrDraftQuality(draft);
         const decision = getOcrReviewDecision(quality);
+        const checklist = createOcrFieldReviewChecklist(draft);
 
         setOcrDraftQuality(quality);
         setOcrReviewDecision(decision);
+        setOcrFieldReviewChecklist(checklist);
         setOcrExtractionTimeline(
           createOcrExtractionTimeline({
             hasUploadInput: Boolean(uploadInput),
@@ -382,6 +394,10 @@ export function UploadReviewForm() {
 
         <div className="mt-4">
           <OcrExtractionTimelinePanel steps={ocrExtractionTimeline} />
+        </div>
+
+        <div className="mt-4">
+          <OcrFieldReviewChecklistPanel checklist={ocrFieldReviewChecklist} />
         </div>
 
         <div className="mt-8 space-y-5">
