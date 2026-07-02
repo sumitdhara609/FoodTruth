@@ -3,43 +3,98 @@ import {
   type ExtractionDraftConfidence,
   type UploadExtractionDraft,
 } from "@/lib/analyze/extraction-draft";
-import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
+import type {
+  OcrTextBlock,
+  OcrTextBlockKind,
+  OcrTextResult,
+} from "@/lib/analyze/ocr-text-result";
+import { findNumberAfterAnyLabel } from "@/lib/analyze/ocr-numeric-parser";
 
-const findBlockText = (result: OcrTextResult, kind: string) => {
-  return (
-    result.blocks.find((block) => block.kind === kind)?.text.toLowerCase() ?? ""
-  );
+const getBlocksByKind = (
+  result: OcrTextResult,
+  kind: OcrTextBlockKind
+): OcrTextBlock[] => {
+  return result.blocks.filter((block) => block.kind === kind);
 };
 
-const findNumberAfterLabel = (text: string, label: string) => {
-  const pattern = new RegExp(`${label}\\s*([0-9]+(?:\\.[0-9]+)?)`, "i");
-  const match = text.match(pattern);
-
-  return match?.[1] ?? "";
+const joinBlockText = (blocks: OcrTextBlock[]) => {
+  return blocks.map((block) => block.text).join(" ").toLowerCase();
 };
 
-const mapConfidence = (
-  confidence: ExtractionDraftConfidence
+const findValue = (text: string, labels: string[]) => {
+  return findNumberAfterAnyLabel({ text, labels })?.value ?? "";
+};
+
+const derivePackSize = ({
+  servingSize,
+  servingsPerPack,
+}: {
+  servingSize: string;
+  servingsPerPack: string;
+}) => {
+  if (!servingSize || !servingsPerPack) {
+    return "";
+  }
+
+  const servingSizeNumber = Number(servingSize);
+  const servingsPerPackNumber = Number(servingsPerPack);
+
+  if (!Number.isFinite(servingSizeNumber) || !Number.isFinite(servingsPerPackNumber)) {
+    return "";
+  }
+
+  return String(servingSizeNumber * servingsPerPackNumber);
+};
+
+const getLowestConfidence = (
+  blocks: OcrTextBlock[],
+  fallback: ExtractionDraftConfidence = "Unknown"
 ): ExtractionDraftConfidence => {
-  return confidence;
+  if (blocks.some((block) => block.confidence === "Low")) {
+    return "Low";
+  }
+
+  if (blocks.some((block) => block.confidence === "Medium")) {
+    return "Medium";
+  }
+
+  if (blocks.some((block) => block.confidence === "High")) {
+    return "High";
+  }
+
+  return fallback;
+};
+
+const pickText = (blocks: OcrTextBlock[]) => {
+  return blocks.map((block) => block.text).join("\n").trim();
 };
 
 export const parseOcrTextToExtractionDraft = (
   result: OcrTextResult
 ): UploadExtractionDraft => {
-  const servingText = findBlockText(result, "serving");
-  const nutritionText = findBlockText(result, "nutrition");
-  const ingredientBlock = result.blocks.find(
-    (block) => block.kind === "ingredients"
-  );
-  const claimsBlock = result.blocks.find((block) => block.kind === "claims");
+  const servingBlocks = getBlocksByKind(result, "serving");
+  const nutritionBlocks = getBlocksByKind(result, "nutrition");
+  const ingredientBlocks = getBlocksByKind(result, "ingredients");
+  const claimBlocks = getBlocksByKind(result, "claims");
 
-  const servingSize = findNumberAfterLabel(servingText, "serving size:");
-  const servingsPerPack = findNumberAfterLabel(servingText, "servings per pack:");
+  const servingText = joinBlockText(servingBlocks);
+  const nutritionText = joinBlockText(nutritionBlocks);
+
+  const servingSize = findValue(servingText, [
+    "serving size",
+    "serve size",
+    "serving",
+  ]);
+
+  const servingsPerPack = findValue(servingText, [
+    "servings per pack",
+    "serves per pack",
+    "servings",
+  ]);
+
   const packSize =
-    servingSize && servingsPerPack
-      ? String(Number(servingSize) * Number(servingsPerPack))
-      : "";
+    findValue(servingText, ["net weight", "net wt", "pack size"]) ||
+    derivePackSize({ servingSize, servingsPerPack });
 
   return {
     productName: createExtractionDraftField({
@@ -59,57 +114,61 @@ export const parseOcrTextToExtractionDraft = (
     }),
     servingSizeGrams: createExtractionDraftField({
       value: servingSize,
-      confidence: servingSize ? "High" : "Unknown",
+      confidence: servingSize ? getLowestConfidence(servingBlocks) : "Unknown",
       source: "ocr",
     }),
     packSizeGrams: createExtractionDraftField({
       value: packSize,
-      confidence: packSize ? "Medium" : "Unknown",
+      confidence: packSize ? getLowestConfidence(servingBlocks, "Medium") : "Unknown",
       source: "ocr",
     }),
     calories: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "energy"),
-      confidence: "High",
+      value: findValue(nutritionText, ["energy", "calories", "calorie", "kcal"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     sugarGrams: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "sugar"),
-      confidence: "High",
+      value: findValue(nutritionText, ["sugars", "sugar"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     sodiumMg: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "sodium"),
-      confidence: "High",
+      value: findValue(nutritionText, ["sodium", "salt"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     totalFatGrams: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "total fat"),
-      confidence: "High",
+      value: findValue(nutritionText, ["total fat", "fat"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     saturatedFatGrams: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "saturated fat"),
-      confidence: "High",
+      value: findValue(nutritionText, [
+        "saturated fat",
+        "saturates",
+        "sat fat",
+      ]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     proteinGrams: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "protein"),
-      confidence: "High",
+      value: findValue(nutritionText, ["protein"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     fiberGrams: createExtractionDraftField({
-      value: findNumberAfterLabel(nutritionText, "fiber"),
-      confidence: "High",
+      value: findValue(nutritionText, ["fiber", "fibre"]),
+      confidence: getLowestConfidence(nutritionBlocks),
       source: "ocr",
     }),
     ingredients: createExtractionDraftField({
-      value: ingredientBlock?.text ?? "",
-      confidence: mapConfidence(ingredientBlock?.confidence ?? "Unknown"),
+      value: pickText(ingredientBlocks),
+      confidence: getLowestConfidence(ingredientBlocks),
       source: "ocr",
     }),
     claims: createExtractionDraftField({
-      value: claimsBlock?.text ?? "",
-      confidence: mapConfidence(claimsBlock?.confidence ?? "Unknown"),
+      value: pickText(claimBlocks),
+      confidence: getLowestConfidence(claimBlocks),
       source: "ocr",
     }),
   };
