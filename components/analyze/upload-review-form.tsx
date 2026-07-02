@@ -8,6 +8,7 @@ import { FormField } from "@/components/analyze/form-field";
 import { FormSection } from "@/components/analyze/form-section";
 import { FormTextarea } from "@/components/analyze/form-textarea";
 import { OcrDraftQualityPanel } from "@/components/analyze/ocr-draft-quality-panel";
+import { OcrExtractionTimelinePanel } from "@/components/analyze/ocr-extraction-timeline-panel";
 import { OcrReviewDecisionPanel } from "@/components/analyze/ocr-review-decision-panel";
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
@@ -17,6 +18,10 @@ import {
   evaluateOcrDraftQuality,
   type OcrDraftQualityResult,
 } from "@/lib/analyze/ocr-draft-quality";
+import {
+  createOcrExtractionTimeline,
+  type OcrExtractionTimelineStep,
+} from "@/lib/analyze/ocr-extraction-timeline";
 import {
   getOcrReviewDecision,
   type OcrReviewDecision,
@@ -116,6 +121,9 @@ export function UploadReviewForm() {
     useState<OcrDraftQualityResult | null>(null);
   const [ocrReviewDecision, setOcrReviewDecision] =
     useState<OcrReviewDecision | null>(null);
+  const [ocrExtractionTimeline, setOcrExtractionTimeline] = useState<
+    OcrExtractionTimelineStep[] | null
+  >(null);
   const [isSaving, startSavingTransition] = useTransition();
 
   const fieldErrors = new Map(
@@ -177,6 +185,7 @@ export function UploadReviewForm() {
     setOcrTextResult(null);
     setOcrDraftQuality(null);
     setOcrReviewDecision(null);
+    setOcrExtractionTimeline(null);
   };
 
   const handleRunExtraction = () => {
@@ -185,8 +194,12 @@ export function UploadReviewForm() {
     startSavingTransition(() => {
       void (async () => {
         let ocrResult: OcrTextResult | null = null;
+        let fallbackUsed = false;
+        let browserOcrAttempted = false;
 
         if (uploadInput && uploadObjectUrl) {
+          browserOcrAttempted = true;
+
           ocrResult = await runBrowserOcrExtraction({
             source: "upload",
             image: uploadObjectUrl,
@@ -195,6 +208,8 @@ export function UploadReviewForm() {
         }
 
         if (!ocrResult?.success) {
+          fallbackUsed = true;
+
           const fallbackResult = await runMockUploadOcrTextExtraction(
             uploadInput ?? undefined
           );
@@ -212,6 +227,18 @@ export function UploadReviewForm() {
           setExtractionMessage(ocrResult.message);
           setOcrDraftQuality(null);
           setOcrReviewDecision(null);
+          setOcrExtractionTimeline(
+            createOcrExtractionTimeline({
+              hasUploadInput: Boolean(uploadInput),
+              hasUploadObjectUrl: Boolean(uploadObjectUrl),
+              browserOcrAttempted,
+              browserOcrSucceeded: false,
+              fallbackUsed: false,
+              ocrTextParsed: false,
+              qualityEvaluated: false,
+              decisionCreated: false,
+            })
+          );
           return;
         }
 
@@ -221,6 +248,18 @@ export function UploadReviewForm() {
 
         setOcrDraftQuality(quality);
         setOcrReviewDecision(decision);
+        setOcrExtractionTimeline(
+          createOcrExtractionTimeline({
+            hasUploadInput: Boolean(uploadInput),
+            hasUploadObjectUrl: Boolean(uploadObjectUrl),
+            browserOcrAttempted,
+            browserOcrSucceeded: browserOcrAttempted && !fallbackUsed,
+            fallbackUsed,
+            ocrTextParsed: true,
+            qualityEvaluated: true,
+            decisionCreated: true,
+          })
+        );
         setFormState(mapExtractionDraftToManualState(draft));
         setValueMode("per-serving");
         setResult(null);
@@ -339,6 +378,10 @@ export function UploadReviewForm() {
 
         <div className="mt-4">
           <OcrReviewDecisionPanel decision={ocrReviewDecision} />
+        </div>
+
+        <div className="mt-4">
+          <OcrExtractionTimelinePanel steps={ocrExtractionTimeline} />
         </div>
 
         <div className="mt-8 space-y-5">
