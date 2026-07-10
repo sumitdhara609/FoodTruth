@@ -1,71 +1,90 @@
 import { findNumberAfterAnyLabel } from "@/lib/analyze/ocr-numeric-parser";
+import { parseNutritionTable } from "./nutrition-table";
 import type { NutritionExtraction } from "./types";
+
+const pick = (
+  tableValue: string | undefined,
+  text: string,
+  labels: string[]
+): string => {
+  if (tableValue && tableValue.trim().length > 0) {
+    return tableValue.trim();
+  }
+
+  return (
+    findNumberAfterAnyLabel({
+      text,
+      labels,
+    })?.value ?? ""
+  );
+};
 
 export async function extractNutrition(
   text: string
 ): Promise<NutritionExtraction> {
+  const table = await parseNutritionTable(text);
+
   return {
     calories: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["energy", "kcal", "calories"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.calories, text, [
+        "energy",
+        "energy kcal",
+        "kcal",
+        "calories",
+        "calorie",
+      ]),
+      confidence: table.calories ? "High" : "Medium",
     },
 
     sugarGrams: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["sugar", "sugars"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.sugarGrams, text, [
+        "total sugars",
+        "sugars",
+        "sugar",
+      ]),
+      confidence: table.sugarGrams ? "High" : "Medium",
     },
 
     sodiumMg: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["sodium"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.sodiumMg, text, [
+        "sodium",
+        "salt",
+      ]),
+      confidence: table.sodiumMg ? "High" : "Medium",
     },
 
     totalFatGrams: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["fat", "total fat"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.totalFatGrams, text, [
+        "total fat",
+        "fat",
+      ]),
+      confidence: table.totalFatGrams ? "High" : "Medium",
     },
 
     saturatedFatGrams: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["saturated fat", "saturates"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.saturatedFatGrams, text, [
+        "saturated fat",
+        "saturates",
+        "sat fat",
+      ]),
+      confidence: table.saturatedFatGrams ? "High" : "Medium",
     },
 
     proteinGrams: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["protein"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.proteinGrams, text, [
+        "protein",
+      ]),
+      confidence: table.proteinGrams ? "High" : "Medium",
     },
 
     fiberGrams: {
-      value:
-        findNumberAfterAnyLabel({
-          text,
-          labels: ["fiber", "fibre"],
-        })?.value ?? "",
-      confidence: "High",
+      value: pick(table.fiberGrams, text, [
+        "dietary fibre",
+        "dietary fiber",
+        "fiber",
+        "fibre",
+      ]),
+      confidence: table.fiberGrams ? "High" : "Medium",
     },
   };
 }
