@@ -6,6 +6,8 @@ export type ImagePreprocessResult = {
   height: number;
 
   rotated: boolean;
+  rotationAngle: number;
+
   deskewed: boolean;
   perspectiveCorrected: boolean;
 

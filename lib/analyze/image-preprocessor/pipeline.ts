@@ -3,6 +3,7 @@ import { analyzeImage } from "./analyzer";
 import { normalizeImage } from "./normalize";
 import { adaptiveThreshold } from "./threshold";
 import type { ImagePreprocessResult } from "./types";
+import { deskewImage } from "./deskew";
 
 export async function preprocessImage(
   image: ImageData
@@ -13,7 +14,11 @@ export async function preprocessImage(
 
   const normalized = await normalizeImage(image);
 
-  const processed = await adaptiveThreshold(normalized);
+  const thresholded = await adaptiveThreshold(normalized);
+
+const deskew = await deskewImage(thresholded);
+
+const processed = deskew.image;
 
   return {
     original: image,
@@ -22,8 +27,9 @@ export async function preprocessImage(
     width: processed.width,
     height: processed.height,
 
-    rotated: false,
-    deskewed: false,
+    rotated: deskew.corrected,
+    rotationAngle: deskew.angle,
+    deskewed: deskew.corrected,
     perspectiveCorrected: false,
 
     brightnessScore: analysis.brightness,
