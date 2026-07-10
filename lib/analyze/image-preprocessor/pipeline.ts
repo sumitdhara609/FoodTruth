@@ -1,4 +1,6 @@
 import { ensureOpenCV } from "./opencv";
+import { analyzeImage } from "./analyzer";
+import { normalizeImage } from "./normalize";
 import type { ImagePreprocessResult } from "./types";
 
 export async function preprocessImage(
@@ -6,19 +8,23 @@ export async function preprocessImage(
 ): Promise<ImagePreprocessResult> {
   await ensureOpenCV();
 
+  const analysis = await analyzeImage(image);
+
+  const processed = await normalizeImage(image);
+
   return {
     original: image,
-    processed: image,
+    processed,
 
-    width: image.width,
-    height: image.height,
+    width: processed.width,
+    height: processed.height,
 
     rotated: false,
     deskewed: false,
     perspectiveCorrected: false,
 
-    brightnessScore: 0,
-    contrastScore: 0,
+    brightnessScore: analysis.brightness,
+    contrastScore: analysis.contrast,
     sharpnessScore: 0,
   };
 }
