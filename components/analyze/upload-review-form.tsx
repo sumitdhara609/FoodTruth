@@ -272,7 +272,7 @@ useEffect(() => {
         return;
       }
 
-      const draft = parseOcrTextToExtractionDraft(ocrResult);
+      const draft = await parseOcrTextToExtractionDraft(ocrResult);
 
       const quality = evaluateOcrDraftQuality(draft);
       const decision = getOcrReviewDecision(quality);

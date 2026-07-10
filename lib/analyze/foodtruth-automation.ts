@@ -1,13 +1,14 @@
 import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
 import { mapDraftToFoodLabelInput } from "@/lib/analyze/draft-to-food-label-input";
 import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import type { UploadExtractionDraft } from "@/lib/analyze/extraction-draft";
 import type { UploadImageInput } from "@/lib/analyze/upload-image-input";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
 import type { FoodTruthReport } from "@/lib/engine/types";
 
 export type FoodTruthAutomationSuccess = {
   success: true;
-  draft: ReturnType<typeof parseOcrTextToExtractionDraft>;
+  draft: UploadExtractionDraft;
   report: FoodTruthReport;
 };
 
@@ -40,7 +41,7 @@ export async function runFoodTruthAutomation({
     };
   }
 
-  const draft = parseOcrTextToExtractionDraft(ocr);
+  const draft = await parseOcrTextToExtractionDraft(ocr);
 
   const input = mapDraftToFoodLabelInput(draft);
 

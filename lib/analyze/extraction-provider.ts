@@ -32,6 +32,7 @@ export const runMockUploadExtraction = async (
   mimeType: UploadImageMimeType = "image/jpeg"
 ): Promise<ExtractionProviderResult> => {
   const uploadInput = createUploadImageInput(mimeType);
+
   const ocrTextResult = await runMockUploadOcrTextExtraction(uploadInput);
 
   if (!ocrTextResult.success) {
@@ -42,10 +43,12 @@ export const runMockUploadExtraction = async (
     };
   }
 
+  const draft = await parseOcrTextToExtractionDraft(ocrTextResult);
+
   return {
     success: true,
     status: "Mock",
-    draft: parseOcrTextToExtractionDraft(ocrTextResult),
+    draft,
     message:
       "Upload input converted into OCR text and extraction draft. Review the values before generating a report.",
   };

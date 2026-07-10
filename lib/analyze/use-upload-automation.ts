@@ -104,7 +104,8 @@ export function useUploadAutomation() {
           return;
         }
 
-        const draft = parseOcrTextToExtractionDraft(ocrResult);
+        // AI-enhanced extraction (async)
+        const draft = await parseOcrTextToExtractionDraft(ocrResult);
 
         const quality = evaluateOcrDraftQuality(draft);
 
