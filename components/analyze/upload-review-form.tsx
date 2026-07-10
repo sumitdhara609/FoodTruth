@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, useSyncExternalStore, useTransition } from "react";
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import Link from "next/link";
 import { saveUploadReviewReportAction } from "@/app/analyze/upload/review/actions";
 import { ExtractionDraftSummary } from "@/components/analyze/extraction-draft-summary";
@@ -14,6 +19,7 @@ import { OcrReviewDecisionPanel } from "@/components/analyze/ocr-review-decision
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
+import { useUploadAutomation } from "@/lib/analyze/use-upload-automation";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
 import {
   evaluateOcrDraftQuality,
@@ -134,6 +140,24 @@ export function UploadReviewForm() {
   >(null);
   const [isSaving, startSavingTransition] = useTransition();
 
+  const uploadAutomation = useUploadAutomation();
+
+useEffect(() => {
+  if (uploadAutomation.message) {
+    setExtractionMessage(uploadAutomation.message);
+  }
+
+  if (uploadAutomation.draftState) {
+    setFormState(uploadAutomation.draftState);
+    setValueMode("per-serving");
+    setResult(null);
+    setSaveMessage(null);
+  }
+}, [
+  uploadAutomation.message,
+  uploadAutomation.draftState,
+]);
+
   const fieldErrors = new Map(
     result && !result.success
       ? result.errors.map((error) => [error.field, error.message])
@@ -198,90 +222,91 @@ export function UploadReviewForm() {
   };
 
   const handleRunExtraction = () => {
-    setExtractionMessage(null);
+  setExtractionMessage(null);
 
-    startSavingTransition(() => {
-      void (async () => {
-        let ocrResult: OcrTextResult | null = null;
-        let fallbackUsed = false;
-        let browserOcrAttempted = false;
+  startSavingTransition(() => {
+    void (async () => {
+      let ocrResult: OcrTextResult | null = null;
+      let browserOcrAttempted = false;
 
-        if (uploadInput && uploadObjectUrl) {
-          browserOcrAttempted = true;
+      if (uploadInput && uploadObjectUrl) {
+        browserOcrAttempted = true;
 
-          ocrResult = await runBrowserOcrExtraction({
-            source: "upload",
-            image: uploadObjectUrl,
-            uploadInput,
-          });
-        }
+        ocrResult = await runBrowserOcrExtraction({
+          source: "upload",
+          image: uploadObjectUrl,
+          uploadInput,
+        });
+      }
 
-        if (!ocrResult?.success) {
-          fallbackUsed = true;
+      if (!ocrResult) {
+        setExtractionMessage(
+          "Please upload a food label image before starting OCR."
+        );
 
-          const fallbackResult = await runMockUploadOcrTextExtraction(
-            uploadInput ?? undefined
-          );
+        return;
+      }
 
-          ocrResult = {
-            ...fallbackResult,
-            message:
-              "Browser OCR is not ready for this image yet. Showing extraction draft fallback for review.",
-          };
-        }
+      setOcrTextResult(ocrResult);
 
-        setOcrTextResult(ocrResult);
+      if (!ocrResult.success) {
+        setExtractionMessage(ocrResult.message);
 
-        if (!ocrResult.success) {
-          setExtractionMessage(ocrResult.message);
-          setOcrDraftQuality(null);
-          setOcrReviewDecision(null);
-          setOcrFieldReviewChecklist(null);
-          setOcrExtractionTimeline(
-            createOcrExtractionTimeline({
-              hasUploadInput: Boolean(uploadInput),
-              hasUploadObjectUrl: Boolean(uploadObjectUrl),
-              browserOcrAttempted,
-              browserOcrSucceeded: false,
-              fallbackUsed: false,
-              ocrTextParsed: false,
-              qualityEvaluated: false,
-              decisionCreated: false,
-            })
-          );
-          return;
-        }
+        setOcrDraftQuality(null);
+        setOcrReviewDecision(null);
+        setOcrFieldReviewChecklist(null);
 
-        const draft = parseOcrTextToExtractionDraft(ocrResult);
-        const quality = evaluateOcrDraftQuality(draft);
-        const decision = getOcrReviewDecision(quality);
-        const checklist = createOcrFieldReviewChecklist(draft);
-
-        setOcrDraftQuality(quality);
-        setOcrReviewDecision(decision);
-        setOcrFieldReviewChecklist(checklist);
         setOcrExtractionTimeline(
           createOcrExtractionTimeline({
             hasUploadInput: Boolean(uploadInput),
             hasUploadObjectUrl: Boolean(uploadObjectUrl),
             browserOcrAttempted,
-            browserOcrSucceeded: browserOcrAttempted && !fallbackUsed,
-            fallbackUsed,
-            ocrTextParsed: true,
-            qualityEvaluated: true,
-            decisionCreated: true,
+            browserOcrSucceeded: false,
+            fallbackUsed: false,
+            ocrTextParsed: false,
+            qualityEvaluated: false,
+            decisionCreated: false,
           })
         );
-        setFormState(mapExtractionDraftToManualState(draft));
-        setValueMode("per-serving");
-        setResult(null);
-        setSaveMessage(null);
-        setExtractionMessage(
-          "OCR text converted into an extraction draft. Review the values before generating a report."
-        );
-      })();
-    });
-  };
+
+        return;
+      }
+
+      const draft = parseOcrTextToExtractionDraft(ocrResult);
+
+      const quality = evaluateOcrDraftQuality(draft);
+      const decision = getOcrReviewDecision(quality);
+      const checklist = createOcrFieldReviewChecklist(draft);
+
+      setOcrDraftQuality(quality);
+      setOcrReviewDecision(decision);
+      setOcrFieldReviewChecklist(checklist);
+
+      setOcrExtractionTimeline(
+        createOcrExtractionTimeline({
+          hasUploadInput: Boolean(uploadInput),
+          hasUploadObjectUrl: Boolean(uploadObjectUrl),
+          browserOcrAttempted,
+          browserOcrSucceeded: true,
+          fallbackUsed: false,
+          ocrTextParsed: true,
+          qualityEvaluated: true,
+          decisionCreated: true,
+        })
+      );
+
+      setFormState(mapExtractionDraftToManualState(draft));
+
+      setValueMode("per-serving");
+      setResult(null);
+      setSaveMessage(null);
+
+      setExtractionMessage(
+        "FoodTruth AI extracted the label automatically. Please verify the detected values before generating the report."
+      );
+    })();
+  });
+};
 
   const renderNumericField = (field: ManualNumericField) => {
     return (
@@ -381,23 +406,23 @@ export function UploadReviewForm() {
         )}
 
         <div className="mt-4">
-          <OcrTextPanel result={ocrTextResult} />
+          <OcrTextPanel result={uploadAutomation.ocrTextResult} />
         </div>
 
         <div className="mt-4">
-          <OcrDraftQualityPanel quality={ocrDraftQuality} />
+          <OcrDraftQualityPanel quality={uploadAutomation.quality} />
         </div>
 
         <div className="mt-4">
-          <OcrReviewDecisionPanel decision={ocrReviewDecision} />
+          <OcrReviewDecisionPanel decision={uploadAutomation.decision} />
         </div>
 
         <div className="mt-4">
-          <OcrExtractionTimelinePanel steps={ocrExtractionTimeline} />
+          <OcrExtractionTimelinePanel steps={uploadAutomation.timeline} />
         </div>
 
         <div className="mt-4">
-          <OcrFieldReviewChecklistPanel checklist={ocrFieldReviewChecklist} />
+          <OcrFieldReviewChecklistPanel checklist={uploadAutomation.checklist} />
         </div>
 
         <div className="mt-8 space-y-5">
