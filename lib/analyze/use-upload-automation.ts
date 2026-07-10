@@ -20,11 +20,11 @@ import {
   getOcrReviewDecision,
   type OcrReviewDecision,
 } from "@/lib/analyze/ocr-review-decision";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
 import { runMockUploadOcrTextExtraction } from "@/lib/analyze/ocr-text-provider";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import type { ManualAnalyzerState } from "@/lib/analyze/manual-input-adapter";
 import type { UploadImageInput } from "@/lib/analyze/upload-image-input";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 
 export type UploadAutomationResult = {
   draftState: ManualAnalyzerState | null;
@@ -104,15 +104,17 @@ export function useUploadAutomation() {
           return;
         }
 
-        // AI-enhanced extraction (async)
-        const draft = await parseOcrTextToExtractionDraft(ocrResult);
+        const rawText = ocrResult.blocks
+          .map((block) => block.text)
+          .join("\n");
+
+        const draft = await buildExtractionDraft(rawText);
 
         const quality = evaluateOcrDraftQuality(draft);
 
         const decision = getOcrReviewDecision(quality);
 
-        const checklist =
-          createOcrFieldReviewChecklist(draft);
+        const checklist = createOcrFieldReviewChecklist(draft);
 
         setResult({
           draftState: mapExtractionDraftToManualState(draft),

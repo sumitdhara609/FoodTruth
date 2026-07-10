@@ -1,5 +1,5 @@
 import type { UploadExtractionDraft } from "@/lib/analyze/extraction-draft";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import { runMockUploadOcrTextExtraction } from "@/lib/analyze/ocr-text-provider";
 import {
   createUploadImageInput,
@@ -43,7 +43,11 @@ export const runMockUploadExtraction = async (
     };
   }
 
-  const draft = await parseOcrTextToExtractionDraft(ocrTextResult);
+  const rawText = ocrTextResult.blocks
+  .map((block) => block.text)
+  .join("\n");
+
+const draft = await buildExtractionDraft(rawText);
 
   return {
     success: true,

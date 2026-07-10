@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import { evaluateOcrDraftQuality } from "@/lib/analyze/ocr-draft-quality";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 
@@ -26,7 +26,7 @@ describe("OCR draft quality", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const quality = evaluateOcrDraftQuality(draft);
 
     expect(quality.level).toBe("Ready");
@@ -50,7 +50,7 @@ describe("OCR draft quality", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const quality = evaluateOcrDraftQuality(draft);
 
     expect(quality.level).toBe("Incomplete");
@@ -82,7 +82,7 @@ describe("OCR draft quality", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const quality = evaluateOcrDraftQuality(draft);
 
     expect(quality.level).toBe("Needs Review");

@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { mockUploadOcrTextResult } from "@/lib/analyze/mock-ocr-text";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 
 describe("OCR to draft parser", () => {
   it("parses serving and pack size from OCR text", () => {
-    const draft = parseOcrTextToExtractionDraft(mockUploadOcrTextResult);
+    const draft = buildExtractionDraft(mockUploadOcrTextResult);
 
     expect(draft.servingSizeGrams.value).toBe("25");
     expect(draft.packSizeGrams.value).toBe("400");
   });
 
   it("parses nutrition values from OCR text", () => {
-    const draft = parseOcrTextToExtractionDraft(mockUploadOcrTextResult);
+    const draft = buildExtractionDraft(mockUploadOcrTextResult);
 
     expect(draft.calories.value).toBe("126.91");
     expect(draft.totalFatGrams.value).toBe("6.10");
@@ -24,7 +24,7 @@ describe("OCR to draft parser", () => {
   });
 
   it("keeps parsed draft review-first", () => {
-    const draft = parseOcrTextToExtractionDraft(mockUploadOcrTextResult);
+    const draft = buildExtractionDraft(mockUploadOcrTextResult);
 
     expect(draft.calories.source).toBe("ocr");
     expect(draft.ingredients.confidence).toBe("Low");
@@ -62,7 +62,7 @@ describe("OCR to draft parser", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
 
     expect(draft.servingSizeGrams.value).toBe("30");
     expect(draft.packSizeGrams.value).toBe("300");

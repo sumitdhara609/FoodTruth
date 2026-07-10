@@ -1,6 +1,6 @@
 import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
 import { mapDraftToFoodLabelInput } from "@/lib/analyze/draft-to-food-label-input";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import type { UploadExtractionDraft } from "@/lib/analyze/extraction-draft";
 import type { UploadImageInput } from "@/lib/analyze/upload-image-input";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
@@ -41,7 +41,11 @@ export async function runFoodTruthAutomation({
     };
   }
 
-  const draft = await parseOcrTextToExtractionDraft(ocr);
+  const draft = await buildExtractionDraft(
+  ocr.blocks
+    .map((block) => block.text)
+    .join("\n")
+);
 
   const input = mapDraftToFoodLabelInput(draft);
 

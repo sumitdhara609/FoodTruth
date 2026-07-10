@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import {
   createOcrFieldReviewChecklist,
@@ -24,7 +24,7 @@ describe("OCR field review checklist", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const checklist = createOcrFieldReviewChecklist(draft);
     const summary = summarizeOcrFieldReviewChecklist(checklist);
 
@@ -56,7 +56,7 @@ describe("OCR field review checklist", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const checklist = createOcrFieldReviewChecklist(draft);
 
     expect(checklist.find((item) => item.field === "calories")?.status).toBe(
@@ -86,7 +86,7 @@ describe("OCR field review checklist", () => {
       ],
     };
 
-    const draft = parseOcrTextToExtractionDraft(result);
+    const draft = buildExtractionDraft(result);
     const checklist = createOcrFieldReviewChecklist(draft);
     const summary = summarizeOcrFieldReviewChecklist(checklist);
 

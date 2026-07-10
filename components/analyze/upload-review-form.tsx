@@ -46,7 +46,7 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
-import { parseOcrTextToExtractionDraft } from "@/lib/analyze/ocr-to-draft-parser";
+import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
 import { runMockUploadOcrTextExtraction } from "@/lib/analyze/ocr-text-provider";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import {
@@ -272,7 +272,11 @@ useEffect(() => {
         return;
       }
 
-      const draft = await parseOcrTextToExtractionDraft(ocrResult);
+      const rawText = ocrResult.blocks
+  .map((block) => block.text)
+  .join("\n");
+
+const draft = await buildExtractionDraft(rawText);
 
       const quality = evaluateOcrDraftQuality(draft);
       const decision = getOcrReviewDecision(quality);

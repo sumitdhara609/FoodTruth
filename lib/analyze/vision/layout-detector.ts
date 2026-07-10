@@ -1,62 +1,139 @@
-export type LabelLayout = {
+export type LayoutSections = {
+  product: string;
   nutrition: string;
   ingredients: string;
+ serving: string;
   claims: string;
-  product: string;
 };
 
-const findSection = (
-  text: string,
-  keywords: string[]
-): string => {
-  const lines = text.split("\n");
+const HEADINGS = {
+  nutrition: [
+    "nutrition information",
+    "nutritional information",
+    "nutrition facts",
+    "nutritional facts",
+  ],
 
-  const collected: string[] = [];
+  ingredients: [
+    "ingredients",
+    "ingredient list",
+  ],
 
-  let collecting = false;
+  serving: [
+    "serving size",
+    "servings per pack",
+  ],
 
-  for (const line of lines) {
-    const lower = line.toLowerCase();
+  claims: [
+    "claims",
+    "highlights",
+    "benefits",
+  ],
+} as const;
 
-    if (
-      keywords.some((k) => lower.includes(k))
-    ) {
-      collecting = true;
-    }
+function findHeadingIndex(
+  lowerText: string,
+  headings: readonly string[]
+): number {
+  for (const heading of headings) {
+    const index = lowerText.indexOf(heading);
 
-    if (collecting) {
-      collected.push(line);
+    if (index !== -1) {
+      return index;
     }
   }
 
-  return collected.join("\n").trim();
-};
+  return -1;
+}
 
-export function detectLabelLayout(
-  cleanedText: string
-): LabelLayout {
+function sliceSection(
+  text: string,
+  start: number,
+  end: number
+): string {
+  if (start === -1) {
+    return "";
+  }
+
+  return text.slice(start, end).trim();
+}
+
+export function detectLayout(
+  text: string
+): LayoutSections {
+  const lower = text.toLowerCase();
+
+  const nutritionStart = findHeadingIndex(
+    lower,
+    HEADINGS.nutrition
+  );
+
+  const ingredientsStart = findHeadingIndex(
+    lower,
+    HEADINGS.ingredients
+  );
+
+  const servingStart = findHeadingIndex(
+    lower,
+    HEADINGS.serving
+  );
+
+  const claimsStart = findHeadingIndex(
+    lower,
+    HEADINGS.claims
+  );
+
+  const positions = [
+    nutritionStart,
+    ingredientsStart,
+    servingStart,
+    claimsStart,
+  ]
+    .filter((p) => p !== -1)
+    .sort((a, b) => a - b);
+
+  const nextSection = (current: number) => {
+    if (current === -1) {
+      return text.length;
+    }
+
+    for (const p of positions) {
+      if (p > current) {
+        return p;
+      }
+    }
+
+    return text.length;
+  };
+
+  const firstSection =
+    positions.length > 0 ? positions[0] : text.length;
+
   return {
-    nutrition: findSection(cleanedText, [
-      "nutrition",
-      "energy",
-      "calories",
-    ]),
+    product: text.slice(0, firstSection).trim(),
 
-    ingredients: findSection(cleanedText, [
-      "ingredients",
-    ]),
+    nutrition: sliceSection(
+      text,
+      nutritionStart,
+      nextSection(nutritionStart)
+    ),
 
-    claims: findSection(cleanedText, [
-      "high protein",
-      "no added sugar",
-      "natural",
-      "organic",
-      "healthy",
-    ]),
+    ingredients: sliceSection(
+      text,
+      ingredientsStart,
+      nextSection(ingredientsStart)
+    ),
 
-    product: cleanedText
-      .split("\n")
-      .slice(0, 6)
-      .join("\n"),
+    serving: sliceSection(
+      text,
+      servingStart,
+      nextSection(servingStart)
+    ),
+
+    claims: sliceSection(
+      text,
+      claimsStart,
+      nextSection(claimsStart)
+    ),
   };
 }
