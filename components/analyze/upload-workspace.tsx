@@ -8,6 +8,10 @@ import {
   uploadSessionBridgeConfig,
 } from "@/lib/analyze/upload-session-bridge";
 import { uploadWorkspaceSteps } from "@/lib/analyze/upload-workspace";
+import {
+  clearTemporaryUploadFile,
+  setTemporaryUploadFile,
+} from "@/lib/analyze/temporary-upload-store";
 
 export function UploadWorkspace() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -31,6 +35,8 @@ export function UploadWorkspace() {
     if (!file) {
       return;
     }
+
+setTemporaryUploadFile(file);
 
     const nextPreviewUrl = URL.createObjectURL(file);
     const sessionResult = createUploadSessionRecord({
@@ -73,6 +79,9 @@ export function UploadWorkspace() {
     });
 
     window.sessionStorage.removeItem(uploadSessionBridgeConfig.storageKey);
+
+    clearTemporaryUploadFile();
+
     setUploadSessionMessage("Temporary upload input cleared.");
   };
 
