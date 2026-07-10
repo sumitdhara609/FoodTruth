@@ -1,6 +1,7 @@
 import { ensureOpenCV } from "./opencv";
 import { analyzeImage } from "./analyzer";
 import { normalizeImage } from "./normalize";
+import { adaptiveThreshold } from "./threshold";
 import type { ImagePreprocessResult } from "./types";
 
 export async function preprocessImage(
@@ -10,7 +11,9 @@ export async function preprocessImage(
 
   const analysis = await analyzeImage(image);
 
-  const processed = await normalizeImage(image);
+  const normalized = await normalizeImage(image);
+
+  const processed = await adaptiveThreshold(normalized);
 
   return {
     original: image,
