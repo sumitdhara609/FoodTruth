@@ -14,13 +14,19 @@ const UNKNOWN = {
 export async function buildExtractionDraft(
   rawText: string
 ): Promise<UploadExtractionDraft> {
+
+  console.log("======================================");
+  console.log("USING parser-orchestrator");
+  console.log("======================================");
+
+  console.log("========== RAW OCR TEXT ==========");
+  console.log(rawText);
+
   const result = await runParserPipeline(rawText);
 
-  console.log("=== RAW OCR TEXT ===");
-console.log(rawText);
+  console.log("========== PARSER RESULT ==========");
+  console.log(result);
 
-console.log("=== PARSER RESULT ===");
-console.log(result);
   const nutrition = {
     calories: result.nutrition.calories ?? UNKNOWN,
     sugarGrams: result.nutrition.sugarGrams ?? UNKNOWN,
@@ -65,7 +71,7 @@ console.log(result);
 
     servingSizeGrams: createExtractionDraftField({
       value: servingSize,
-      confidence: "High",
+      confidence: servingSize ? "High" : "Unknown",
       source: "ocr",
     }),
 

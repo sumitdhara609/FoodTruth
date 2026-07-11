@@ -1,5 +1,3 @@
-import { ensureOpenCV } from "../opencv";
-
 export type PerspectiveResult = {
   image: ImageData;
   corrected: boolean;
@@ -8,48 +6,8 @@ export type PerspectiveResult = {
 export async function correctPerspective(
   image: ImageData
 ): Promise<PerspectiveResult> {
-
-  const cv = await ensureOpenCV();
-
-  const src = cv.matFromImageData(image);
-
-  const gray = new cv.Mat();
-
-  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-  const edges = new cv.Mat();
-
-  cv.Canny(
-    gray,
-    edges,
-    50,
-    150
-  );
-
-  const contours = new cv.MatVector();
-  const hierarchy = new cv.Mat();
-
-  cv.findContours(
-    edges,
-    contours,
-    hierarchy,
-    cv.RETR_EXTERNAL,
-    cv.CHAIN_APPROX_SIMPLE
-  );
-
-  // Full document detection will come next.
-  // For now simply return the image.
-
-  const output = image;
-
-  src.delete();
-  gray.delete();
-  edges.delete();
-  contours.delete();
-  hierarchy.delete();
-
   return {
-    image: output,
+    image,
     corrected: false,
   };
 }

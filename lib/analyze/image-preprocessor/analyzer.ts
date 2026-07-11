@@ -1,5 +1,3 @@
-import { ensureOpenCV } from "./opencv";
-
 export type ImageAnalysis = {
   brightness: number;
   contrast: number;
@@ -9,43 +7,29 @@ export type ImageAnalysis = {
 export async function analyzeImage(
   image: ImageData
 ): Promise<ImageAnalysis> {
-  const cv = await ensureOpenCV();
+  const data = image.data;
 
-  const src = cv.matFromImageData(image);
+  let sum = 0;
+  let min = 255;
+  let max = 0;
 
-  const gray = new cv.Mat();
-  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+  for (let i = 0; i < data.length; i += 4) {
+    const gray =
+      0.299 * data[i] +
+      0.587 * data[i + 1] +
+      0.114 * data[i + 2];
 
-  const mean = new cv.Mat();
-  const stddev = new cv.Mat();
+    sum += gray;
 
-  cv.meanStdDev(gray, mean, stddev);
+    if (gray < min) min = gray;
+    if (gray > max) max = gray;
+  }
 
-  const brightness = mean.doubleAt(0, 0);
-  const contrast = stddev.doubleAt(0, 0);
-
-  // Laplacian variance = sharpness
-  const laplacian = new cv.Mat();
-  cv.Laplacian(gray, laplacian, cv.CV_64F);
-
-  const lapMean = new cv.Mat();
-  const lapStd = new cv.Mat();
-
-  cv.meanStdDev(laplacian, lapMean, lapStd);
-
-  const sharpness = Math.pow(lapStd.doubleAt(0, 0), 2);
-
-  src.delete();
-  gray.delete();
-  mean.delete();
-  stddev.delete();
-  laplacian.delete();
-  lapMean.delete();
-  lapStd.delete();
+  const pixels = data.length / 4;
 
   return {
-    brightness,
-    contrast,
-    sharpness,
+    brightness: sum / pixels,
+    contrast: max - min,
+    sharpness: 100,
   };
 }

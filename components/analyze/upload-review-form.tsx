@@ -52,7 +52,8 @@ import {
   parseUploadSessionInput,
   uploadSessionBridgeConfig,
 } from "@/lib/analyze/upload-session-bridge";
-
+import { getTemporaryUploadFile } from "@/lib/analyze/temporary-upload-store";
+import { clearTemporaryUploadFile } from "@/lib/analyze/temporary-upload-store";
 import {
   uploadReviewFormCopy,
   uploadReviewValueModeOptions,
@@ -195,87 +196,57 @@ export function UploadReviewForm() {
   };
 
   const handleClearReview = () => {
-    setFormState(initialUploadReviewState);
-    setValueMode("per-serving");
-    setResult(null);
-    setSaveMessage(null);
-    setExtractionMessage(null);
-    setOcrTextResult(null);
-    setOcrDraftQuality(null);
-    setOcrReviewDecision(null);
-    setOcrExtractionTimeline(null);
-    setOcrFieldReviewChecklist(null);
-  };
-const runExtraction = async () => {
-  let ocrResult: OcrTextResult | null = null;
-  let browserOcrAttempted = false;
+  setFormState(initialUploadReviewState);
+  setValueMode("per-serving");
 
-  if (uploadInput && uploadObjectUrl) {
-    browserOcrAttempted = true;
+  setDraft(null);
+  setResult(null);
 
-    ocrResult = await runBrowserOcrExtraction({
-      source: "upload",
-      image: uploadObjectUrl,
-      uploadInput,
-    });
-  }
+  setSaveMessage(null);
+  setExtractionMessage(null);
 
-  if (!ocrResult) {
-    setExtractionMessage(
-      "Please upload a food label image before starting OCR."
-    );
-    return;
-  }
+  setOcrTextResult(null);
+  setOcrDraftQuality(null);
+  setOcrReviewDecision(null);
+  setOcrExtractionTimeline(null);
+  setOcrFieldReviewChecklist(null);
+
+  clearTemporaryUploadFile();
 };
-  const handleRunExtraction = () => {
+
+const handleRunExtraction = () => {
   setExtractionMessage(null);
 
   startSavingTransition(() => {
     void (async () => {
-      let ocrResult: OcrTextResult | null = null;
-      let browserOcrAttempted = false;
-
-      if (uploadInput && uploadObjectUrl) {
-        browserOcrAttempted = true;
-
-        ocrResult = await runBrowserOcrExtraction({
-          source: "upload",
-          image: uploadObjectUrl,
-          uploadInput,
-        });
-      }
-
-      if (!ocrResult) {
+      if (!uploadInput) {
         setExtractionMessage(
           "Please upload a food label image before starting OCR."
         );
-
         return;
       }
-setOcrTextResult(ocrResult);
 
-if (!ocrResult.success) {
-  setExtractionMessage(ocrResult.message);
+      const uploadedFile = getTemporaryUploadFile();
 
-  setOcrDraftQuality(null);
-  setOcrReviewDecision(null);
-  setOcrFieldReviewChecklist(null);
+      if (!uploadedFile) {
+        setExtractionMessage(
+          "The uploaded image is no longer available. Please upload it again."
+        );
+        return;
+      }
 
-  setOcrExtractionTimeline(
-    createOcrExtractionTimeline({
-      hasUploadInput: Boolean(uploadInput),
-      hasUploadObjectUrl: Boolean(uploadObjectUrl),
-      browserOcrAttempted,
-      browserOcrSucceeded: false,
-      fallbackUsed: false,
-      ocrTextParsed: false,
-      qualityEvaluated: false,
-      decisionCreated: false,
-    })
-  );
+      console.log("========== OCR START ==========");
+      console.log(uploadedFile);
 
-  return;
-}
+      const ocrResult = await runBrowserOcrExtraction({
+        source: "upload",
+        image: uploadedFile,
+        uploadInput,
+      });
+
+      console.log("========== OCR RESULT ==========");
+      console.log(ocrResult);
+
       setOcrTextResult(ocrResult);
 
       if (!ocrResult.success) {
@@ -287,9 +258,9 @@ if (!ocrResult.success) {
 
         setOcrExtractionTimeline(
           createOcrExtractionTimeline({
-            hasUploadInput: Boolean(uploadInput),
-            hasUploadObjectUrl: Boolean(uploadObjectUrl),
-            browserOcrAttempted,
+            hasUploadInput: true,
+            hasUploadObjectUrl: true,
+            browserOcrAttempted: true,
             browserOcrSucceeded: false,
             fallbackUsed: false,
             ocrTextParsed: false,
@@ -302,16 +273,47 @@ if (!ocrResult.success) {
       }
 
       const rawText = ocrResult.blocks
-  .map((block) => block.text)
-  .join("\n");
+        .map((block) => block.text)
+        .join("\n");
 
-const draft = await buildExtractionDraft(rawText);
+      console.log("========== RAW OCR ==========");
+      console.log(rawText);
 
-setDraft(draft);
+      const nextDraft = await buildExtractionDraft(rawText);
 
-      const quality = evaluateOcrDraftQuality(draft);
-      const decision = getOcrReviewDecision(quality);
-      const checklist = createOcrFieldReviewChecklist(draft);
+      console.log("========== DRAFT ==========");
+
+console.table({
+  productName: nextDraft.productName.value,
+  brandName: nextDraft.brandName.value,
+  category: nextDraft.category.value,
+  servingSizeGrams: nextDraft.servingSizeGrams.value,
+  packSizeGrams: nextDraft.packSizeGrams.value,
+  calories: nextDraft.calories.value,
+  sugarGrams: nextDraft.sugarGrams.value,
+  sodiumMg: nextDraft.sodiumMg.value,
+  totalFatGrams: nextDraft.totalFatGrams.value,
+  saturatedFatGrams: nextDraft.saturatedFatGrams.value,
+  proteinGrams: nextDraft.proteinGrams.value,
+  fiberGrams: nextDraft.fiberGrams.value,
+  ingredients: nextDraft.ingredients.value,
+  claims: nextDraft.claims.value,
+});
+
+      setDraft(nextDraft);
+
+      setFormState(
+        mapExtractionDraftToManualState(nextDraft)
+      );
+
+      const quality =
+        evaluateOcrDraftQuality(nextDraft);
+
+      const decision =
+        getOcrReviewDecision(quality);
+
+      const checklist =
+        createOcrFieldReviewChecklist(nextDraft);
 
       setOcrDraftQuality(quality);
       setOcrReviewDecision(decision);
@@ -319,9 +321,9 @@ setDraft(draft);
 
       setOcrExtractionTimeline(
         createOcrExtractionTimeline({
-          hasUploadInput: Boolean(uploadInput),
-          hasUploadObjectUrl: Boolean(uploadObjectUrl),
-          browserOcrAttempted,
+          hasUploadInput: true,
+          hasUploadObjectUrl: true,
+          browserOcrAttempted: true,
           browserOcrSucceeded: true,
           fallbackUsed: false,
           ocrTextParsed: true,
@@ -330,16 +332,12 @@ setDraft(draft);
         })
       );
 
-      setFormState(mapExtractionDraftToManualState(draft));
-
       setValueMode("per-serving");
-      console.log("=== REVIEW DRAFT ===");
-      console.log(draft);
       setResult(null);
       setSaveMessage(null);
 
       setExtractionMessage(
-        "FoodTruth AI extracted the label automatically. Please verify the detected values before generating the report."
+        "FoodTruth AI successfully extracted the label. Please review the detected values before generating the report."
       );
     })();
   });
@@ -461,7 +459,16 @@ setDraft(draft);
   checklist={ocrFieldReviewChecklist}
 />
         </div>
-
+<div
+  style={{
+    background: "red",
+    color: "white",
+    padding: "20px",
+    fontSize: "24px",
+  }}
+>
+  DEBUG 1
+</div>
         <div className="mt-8 space-y-5">
           <FormSection
             eyebrow="Identity"

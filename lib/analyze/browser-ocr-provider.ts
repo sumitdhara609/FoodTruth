@@ -2,7 +2,7 @@ import { createClassifiedOcrTextBlock } from "@/lib/analyze/ocr-text-classifier"
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import type { UploadImageInput } from "@/lib/analyze/upload-image-input";
 
-import { preprocessImage } from "@/lib/analyze/image-preprocessor";
+import { preprocessImage } from "@/lib/analyze/image-preprocessor/pipeline";
 import {
   imageToImageData,
   imageDataToBlob,
@@ -37,19 +37,19 @@ export const browserOcrProviderConfig: BrowserOcrProviderConfig = {
 const splitRecognizedTextIntoBlocks = (
   text: string
 ): OcrTextResult["blocks"] => {
-  const normalizedLines = text
+  return text
     .split(/\n+/)
     .map((line) => line.trim())
-    .filter(Boolean);
-
-  return normalizedLines.map(createClassifiedOcrTextBlock);
+    .filter(Boolean)
+    .map(createClassifiedOcrTextBlock);
 };
 
 export const runBrowserOcrExtraction = async (
   input: BrowserOcrInput
 ): Promise<OcrTextResult> => {
-  let worker: Awaited<ReturnType<typeof import("tesseract.js")["createWorker"]>> | null =
-    null;
+  let worker: Awaited<
+    ReturnType<typeof import("tesseract.js")["createWorker"]>
+  > | null = null;
 
   try {
     const { createWorker } = await import("tesseract.js");
@@ -57,24 +57,67 @@ export const runBrowserOcrExtraction = async (
     worker = await createWorker(browserOcrProviderConfig.language);
 
     // -----------------------------
-    // Preprocess image
+    // Convert image
     // -----------------------------
 
     const imageData = await imageToImageData(input.image);
 
-    const preprocessing = await preprocessImage(imageData);
+    console.log("===== ORIGINAL IMAGE =====");
+    console.log(imageData.width, imageData.height);
+
+    // -----------------------------
+    // Preprocess
+    // -----------------------------
+
+    console.log("STEP 1");
+
+console.log("CALLING preprocessImage");
+
+const preprocessing = await preprocessImage(imageData);
+
+console.log("RETURNED preprocessImage");
+
+console.log("STEP 2");
+
+    console.log("===== PREPROCESSING =====");
+    console.log(preprocessing);
+
+    // -----------------------------
+    // OCR on processed image
+    // -----------------------------
 
     const processedBlob = await imageDataToBlob(
       preprocessing.processed
     );
 
+    let recognition = await worker.recognize(processedBlob);
+
+    let recognizedText = recognition.data.text.trim();
+
+    console.log("===== OCR (Processed) =====");
+    console.log(recognizedText);
+
     // -----------------------------
-    // OCR
+    // Fallback to original image
     // -----------------------------
 
-    const recognition = await worker.recognize(processedBlob);
+    if (!recognizedText) {
+      console.log("Processed image produced no text.");
+      console.log("Retrying with original image...");
 
-    const recognizedText = recognition.data.text.trim();
+      const originalBlob = await imageDataToBlob(imageData);
+
+      recognition = await worker.recognize(originalBlob);
+
+      recognizedText = recognition.data.text.trim();
+
+      console.log("===== OCR (Original) =====");
+      console.log(recognizedText);
+    }
+
+    // -----------------------------
+    // Final result
+    // -----------------------------
 
     if (!recognizedText) {
       return {
@@ -83,7 +126,7 @@ export const runBrowserOcrExtraction = async (
         success: false,
         blocks: [],
         message:
-          "OCR completed but no readable text was detected. Try a clearer image with better lighting.",
+          "OCR completed but no readable text could be extracted from either the processed or original image.",
         storesOriginalImage: false,
         requiresUserReview: true,
       };
@@ -95,12 +138,13 @@ export const runBrowserOcrExtraction = async (
       success: true,
       blocks: splitRecognizedTextIntoBlocks(recognizedText),
       message:
-        "Browser OCR successfully extracted text from the processed food label. Please review the detected values before generating the report.",
+        "Browser OCR successfully extracted text. Please verify the detected values before generating the report.",
       storesOriginalImage: false,
       requiresUserReview: true,
     };
   } catch (error) {
-    console.error("Browser OCR failed:", error);
+    console.error("===== OCR ERROR =====");
+    console.error(error);
 
     return {
       source: input.source,

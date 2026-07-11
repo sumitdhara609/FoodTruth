@@ -2,9 +2,9 @@ const START = [
   "ingredients",
 ];
 
-export function parseIngredientSection(
+export function parseIngredients(
   text: string
-) {
+): string {
   const lower = text.toLowerCase();
 
   for (const key of START) {
