@@ -1,5 +1,3 @@
-import cv from "@techstark/opencv-js";
-
 import { ensureOpenCV } from "./opencv";
 
 import { analyzeBrightness } from "./analyzers/brightness";
@@ -11,8 +9,7 @@ import type { ImageAnalysis } from "./analyzers/types";
 export async function analyzeVision(
   image: ImageData
 ): Promise<ImageAnalysis> {
-
-  await ensureOpenCV();
+  const cv = await ensureOpenCV();
 
   const src = cv.matFromImageData(image);
 
@@ -25,15 +22,20 @@ export async function analyzeVision(
   );
 
   const analysis: ImageAnalysis = {
+    brightness: analyzeBrightness(
+      cv,
+      gray
+    ),
 
-    brightness:
-      analyzeBrightness(gray),
+    contrast: analyzeContrast(
+      cv,
+      gray
+    ),
 
-    contrast:
-      analyzeContrast(gray),
-
-    sharpness:
-      analyzeSharpness(gray),
+    sharpness: analyzeSharpness(
+      cv,
+      gray
+    ),
 
     noise: 0,
 

@@ -16,6 +16,11 @@ export async function buildExtractionDraft(
 ): Promise<UploadExtractionDraft> {
   const result = await runParserPipeline(rawText);
 
+  console.log("=== RAW OCR TEXT ===");
+console.log(rawText);
+
+console.log("=== PARSER RESULT ===");
+console.log(result);
   const nutrition = {
     calories: result.nutrition.calories ?? UNKNOWN,
     sugarGrams: result.nutrition.sugarGrams ?? UNKNOWN,

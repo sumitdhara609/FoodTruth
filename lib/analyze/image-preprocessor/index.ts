@@ -1,12 +1,16 @@
+import { ensureOpenCV } from "./opencv";
 import { analyzeImage } from "./analyzer";
 import { normalizeImage } from "./normalize";
 import { adaptiveThreshold } from "./threshold";
 import { deskewImage } from "./deskew";
+import { perspectiveCorrection } from "./perspective";
 import type { ImagePreprocessResult } from "./types";
 
 export async function preprocessImage(
   image: ImageData
 ): Promise<ImagePreprocessResult> {
+  await ensureOpenCV();
+
   // Analyze original image quality
   const analysis = await analyzeImage(image);
 
@@ -19,7 +23,10 @@ export async function preprocessImage(
   // Correct rotation
   const deskew = await deskewImage(thresholded);
 
-  const processed = deskew.image;
+  // Correct perspective
+  const perspective = await perspectiveCorrection(deskew.image);
+
+  const processed = perspective.image;
 
   return {
     original: image,
@@ -31,9 +38,7 @@ export async function preprocessImage(
     rotated: deskew.corrected,
     rotationAngle: deskew.angle,
     deskewed: deskew.corrected,
-
-    // Perspective correction isn't implemented yet
-    perspectiveCorrected: false,
+    perspectiveCorrected: perspective.corrected,
 
     brightnessScore: analysis.brightness,
     contrastScore: analysis.contrast,

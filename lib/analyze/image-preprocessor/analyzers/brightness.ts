@@ -1,9 +1,7 @@
-import cv from "@techstark/opencv-js";
-
 export function analyzeBrightness(
-  gray: cv.Mat
+  cv: any,
+  gray: any
 ): number {
-
   const mean = new cv.Mat();
   const std = new cv.Mat();
 

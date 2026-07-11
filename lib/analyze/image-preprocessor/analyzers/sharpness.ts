@@ -1,9 +1,7 @@
-import cv from "@techstark/opencv-js";
-
 export function analyzeSharpness(
-  gray: cv.Mat
+  cv: any,
+  gray: any
 ): number {
-
   const laplacian = new cv.Mat();
 
   cv.Laplacian(

@@ -19,7 +19,6 @@ import { OcrReviewDecisionPanel } from "@/components/analyze/ocr-review-decision
 import { OcrTextPanel } from "@/components/analyze/ocr-text-panel";
 import { FoodTruthReportPanel } from "@/components/report/foodtruth-report-panel";
 import { runBrowserOcrExtraction } from "@/lib/analyze/browser-ocr-provider";
-import { useUploadAutomation } from "@/lib/analyze/use-upload-automation";
 import { mapExtractionDraftToManualState } from "@/lib/analyze/extraction-draft";
 import {
   evaluateOcrDraftQuality,
@@ -53,7 +52,7 @@ import {
   parseUploadSessionInput,
   uploadSessionBridgeConfig,
 } from "@/lib/analyze/upload-session-bridge";
-import { realLabelUploadExtractionDraft } from "@/lib/analyze/upload-review-sample";
+
 import {
   uploadReviewFormCopy,
   uploadReviewValueModeOptions,
@@ -61,6 +60,7 @@ import {
 } from "@/lib/analyze/upload-review-form-config";
 import { generateValidatedFoodTruthReport } from "@/lib/engine/validated-foodtruth-engine";
 import type { ValidatedFoodTruthResult } from "@/lib/engine/types";
+import type { UploadExtractionDraft } from "@/lib/analyze/extraction-draft";
 
 const initialUploadReviewState: ManualAnalyzerState = {
   productName: "",
@@ -120,6 +120,8 @@ export function UploadReviewForm() {
   );
   const [valueMode, setValueMode] =
     useState<UploadReviewValueMode>("per-serving");
+  const [draft, setDraft] =
+  useState<UploadExtractionDraft | null>(null);
   const [result, setResult] = useState<ValidatedFoodTruthResult | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [extractionMessage, setExtractionMessage] = useState<string | null>(
@@ -140,23 +142,7 @@ export function UploadReviewForm() {
   >(null);
   const [isSaving, startSavingTransition] = useTransition();
 
-  const uploadAutomation = useUploadAutomation();
 
-useEffect(() => {
-  if (uploadAutomation.message) {
-    setExtractionMessage(uploadAutomation.message);
-  }
-
-  if (uploadAutomation.draftState) {
-    setFormState(uploadAutomation.draftState);
-    setValueMode("per-serving");
-    setResult(null);
-    setSaveMessage(null);
-  }
-}, [
-  uploadAutomation.message,
-  uploadAutomation.draftState,
-]);
 
   const fieldErrors = new Map(
     result && !result.success
@@ -220,7 +206,27 @@ useEffect(() => {
     setOcrExtractionTimeline(null);
     setOcrFieldReviewChecklist(null);
   };
+const runExtraction = async () => {
+  let ocrResult: OcrTextResult | null = null;
+  let browserOcrAttempted = false;
 
+  if (uploadInput && uploadObjectUrl) {
+    browserOcrAttempted = true;
+
+    ocrResult = await runBrowserOcrExtraction({
+      source: "upload",
+      image: uploadObjectUrl,
+      uploadInput,
+    });
+  }
+
+  if (!ocrResult) {
+    setExtractionMessage(
+      "Please upload a food label image before starting OCR."
+    );
+    return;
+  }
+};
   const handleRunExtraction = () => {
   setExtractionMessage(null);
 
@@ -246,7 +252,30 @@ useEffect(() => {
 
         return;
       }
+setOcrTextResult(ocrResult);
 
+if (!ocrResult.success) {
+  setExtractionMessage(ocrResult.message);
+
+  setOcrDraftQuality(null);
+  setOcrReviewDecision(null);
+  setOcrFieldReviewChecklist(null);
+
+  setOcrExtractionTimeline(
+    createOcrExtractionTimeline({
+      hasUploadInput: Boolean(uploadInput),
+      hasUploadObjectUrl: Boolean(uploadObjectUrl),
+      browserOcrAttempted,
+      browserOcrSucceeded: false,
+      fallbackUsed: false,
+      ocrTextParsed: false,
+      qualityEvaluated: false,
+      decisionCreated: false,
+    })
+  );
+
+  return;
+}
       setOcrTextResult(ocrResult);
 
       if (!ocrResult.success) {
@@ -278,6 +307,8 @@ useEffect(() => {
 
 const draft = await buildExtractionDraft(rawText);
 
+setDraft(draft);
+
       const quality = evaluateOcrDraftQuality(draft);
       const decision = getOcrReviewDecision(quality);
       const checklist = createOcrFieldReviewChecklist(draft);
@@ -302,6 +333,8 @@ const draft = await buildExtractionDraft(rawText);
       setFormState(mapExtractionDraftToManualState(draft));
 
       setValueMode("per-serving");
+      console.log("=== REVIEW DRAFT ===");
+      console.log(draft);
       setResult(null);
       setSaveMessage(null);
 
@@ -394,7 +427,11 @@ const draft = await buildExtractionDraft(rawText);
         </div>
 
         <div className="mt-4">
-          <ExtractionDraftSummary draft={realLabelUploadExtractionDraft} />
+          {draft && (
+  <ExtractionDraftSummary
+    draft={draft}
+  />
+)}
         </div>
 
         {uploadInputMessage && (
@@ -410,23 +447,19 @@ const draft = await buildExtractionDraft(rawText);
         )}
 
         <div className="mt-4">
-          <OcrTextPanel result={uploadAutomation.ocrTextResult} />
-        </div>
+          <OcrTextPanel result={ocrTextResult} />
 
-        <div className="mt-4">
-          <OcrDraftQualityPanel quality={uploadAutomation.quality} />
-        </div>
+<OcrDraftQualityPanel quality={ocrDraftQuality} />
 
-        <div className="mt-4">
-          <OcrReviewDecisionPanel decision={uploadAutomation.decision} />
-        </div>
+<OcrReviewDecisionPanel decision={ocrReviewDecision} />
 
-        <div className="mt-4">
-          <OcrExtractionTimelinePanel steps={uploadAutomation.timeline} />
-        </div>
+<OcrExtractionTimelinePanel
+  steps={ocrExtractionTimeline}
+/>
 
-        <div className="mt-4">
-          <OcrFieldReviewChecklistPanel checklist={uploadAutomation.checklist} />
+<OcrFieldReviewChecklistPanel
+  checklist={ocrFieldReviewChecklist}
+/>
         </div>
 
         <div className="mt-8 space-y-5">
