@@ -45,7 +45,7 @@ import {
   servingFields,
   type ManualNumericField,
 } from "@/lib/analyze/manual-field-config";
-import { buildExtractionDraft } from "@/lib/analyze/vision/draft-builder";
+import { runExtractionPipeline } from "@/lib/analyze/pipeline";
 import { runMockUploadOcrTextExtraction } from "@/lib/analyze/ocr-text-provider";
 import type { OcrTextResult } from "@/lib/analyze/ocr-text-result";
 import {
@@ -279,9 +279,18 @@ const handleRunExtraction = () => {
       console.log("========== RAW OCR ==========");
       console.log(rawText);
 
-      const nextDraft = await buildExtractionDraft(rawText);
+      const pipeline =
+  await runExtractionPipeline({
+    rawOcrText: rawText,
+  });
 
-      console.log("========== DRAFT ==========");
+const nextDraft =
+  pipeline.draft;
+
+console.log("========== PIPELINE ==========");
+console.log(pipeline);
+
+console.log("========== DRAFT ==========");
 
 console.table({
   productName: nextDraft.productName.value,
@@ -301,6 +310,15 @@ console.table({
 });
 
       setDraft(nextDraft);
+
+console.log("========== LAYOUT ==========");
+console.log(pipeline.layout);
+
+console.log("========== IDENTITY ==========");
+console.log(pipeline.identity);
+
+console.log("========== WARNINGS ==========");
+console.log(pipeline.warnings);
 
       setFormState(
         mapExtractionDraftToManualState(nextDraft)

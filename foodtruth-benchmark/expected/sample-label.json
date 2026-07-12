@@ -1,0 +1,20 @@
+{
+  "productName": "Mad Angles",
+  "brandName": "Bingo",
+  "category": "Snack",
+
+  "servingSizeGrams": "30",
+  "packSizeGrams": "120",
+
+  "calories": "160",
+  "sugarGrams": "2.8",
+  "sodiumMg": "487",
+  "totalFatGrams": "9.5",
+  "saturatedFatGrams": "3.9",
+  "proteinGrams": "2.2",
+  "fiberGrams": "1.5",
+
+  "ingredients": "Potatoes, Edible Vegetable Oil, Rice Flour, Corn Flour",
+
+  "claims": "No Added MSG"
+}
