@@ -1,48 +1,68 @@
 import { parseNutritionValue } from "./value-parser";
 
 export type ParsedNutritionRow = {
-
   nutrient: string;
-
   value: string;
-
   unit: string;
-
 };
 
+/**
+ * Cleans OCR formatting from a nutrition row.
+ */
+function normalizeRow(
+  text: string
+): string {
+
+  return text
+
+    // Dotted leaders
+    .replace(/\.{2,}/g, " ")
+
+    // Colon
+    .replace(/\s*:\s*/g, " ")
+
+    // Equal sign
+    .replace(/\s*=\s*/g, " ")
+
+    // Multiple spaces
+    .replace(/\s+/g, " ")
+
+    .trim();
+
+}
+
+/**
+ * Parses one nutrition row.
+ */
 export function parseNutritionRow(
-  line: string
+  row: string
 ): ParsedNutritionRow | null {
 
-  const parsed =
-    parseNutritionValue(line);
+  const normalized =
+    normalizeRow(row);
 
-  if (!parsed) {
+  const parsedValue =
+    parseNutritionValue(normalized);
+
+  if (!parsedValue) {
     return null;
   }
 
   const nutrient =
-    line
+    normalized
       .replace(
-        parsed.value,
+        /[-+]?\d+(?:\.\d+)?\s*(kcal|kj|mg|g|mcg|µg|%).*/i,
         ""
       )
-      .replace(
-        parsed.unit,
-        ""
-      )
-      .replace(/[:\-]/g, "")
       .trim();
 
   return {
 
     nutrient,
 
-    value:
-      parsed.value,
+    value: parsedValue.value,
 
-    unit:
-      parsed.unit,
+    unit: parsedValue.unit,
 
   };
 
