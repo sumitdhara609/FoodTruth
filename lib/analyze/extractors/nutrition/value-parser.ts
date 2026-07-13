@@ -4,24 +4,46 @@ export type ParsedNutritionValue = {
 };
 
 /**
- * Extracts the first numeric nutrition value
- * and its unit from OCR text.
- *
- * Examples:
- *
- * 7.4 g
- * 534 kcal
- * 487 mg
- * 0.2 %
- * 128 kJ
+ * Repairs common OCR mistakes in
+ * nutrition values before parsing.
+ */
+function normalizeValue(
+  text: string
+): string {
+
+  return text
+
+    // Letter O → zero (only before digits/units)
+    .replace(/O(?=\d|\.|,|mg|g|kcal|kj|%)/gi, "0")
+
+    // Letter l → one
+    .replace(/\bl(?=\d|\.)/g, "1")
+
+    // Comma decimal → period
+    .replace(/(\d),(\d)/g, "$1.$2")
+
+    // Collapse whitespace
+    .replace(/\s+/g, " ")
+
+    .trim();
+
+}
+
+/**
+ * Extracts a nutrition value
+ * from OCR text.
  */
 export function parseNutritionValue(
   text: string
 ): ParsedNutritionValue | null {
 
-  const match = text.match(
-    /([-+]?\d+(?:\.\d+)?)\s*(kcal|kj|mg|g|mcg|µg|%)/i
-  );
+  const normalized =
+    normalizeValue(text);
+
+  const match =
+    normalized.match(
+      /([-+]?\d+(?:\.\d+)?)\s*(kcal|kj|mg|g|mcg|µg|%)/i
+    );
 
   if (!match) {
     return null;
