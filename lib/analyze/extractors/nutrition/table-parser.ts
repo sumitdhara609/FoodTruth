@@ -1,5 +1,6 @@
 import { parseNutritionRow } from "./row-parser";
 import { mapNutrient } from "./nutrient-map";
+import { splitNutritionSegments } from "./segment-parser";
 
 export type ParsedNutritionTable = Record<
   string,
@@ -18,31 +19,38 @@ export function parseNutritionTable(
 
   for (const line of lines) {
 
-    const row =
-      parseNutritionRow(line);
+    const segments =
+      splitNutritionSegments(line);
 
-    if (!row) {
-      continue;
+    for (const segment of segments) {
+
+      const row =
+        parseNutritionRow(segment);
+
+      if (!row) {
+        continue;
+      }
+
+      const nutrient =
+        mapNutrient(
+          row.nutrient
+        );
+
+      if (!nutrient) {
+        continue;
+      }
+
+      table[nutrient] = {
+
+        value: row.value,
+
+        unit: row.unit,
+
+        source: segment,
+
+      };
+
     }
-
-    const nutrient =
-      mapNutrient(
-        row.nutrient
-      );
-
-    if (!nutrient) {
-      continue;
-    }
-
-    table[nutrient] = {
-
-      value: row.value,
-
-      unit: row.unit,
-
-      source: line,
-
-    };
 
   }
 
